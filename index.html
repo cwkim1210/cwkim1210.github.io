@@ -10,312 +10,291 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one screen workstation. Left = identity, center = Vitruvian robot with a neural network whose nodes open projects, right = node index / detail panel. Dark only by design. */
+/* Layout: one dark room. Left, a suit storage capsule holding a body with a glowing nervous system; right, Chanwoo in a lab coat holding a note; menu bar top right. Black and one cyan glow only. */
 :root {
-  --void: #04080c;
-  --panel: #0a131b;
-  --panel-2: #0e1b26;
-  --line: #17303f;
-  --text: #d8e8f0;
-  --dim: #7c97a6;
-  --arc: #5fe3ff;
-  --gold: #ffb547;
-  --pulse: #ff5a6a;
-  --ok: #5fe3a1;
+  --black: #000000;
+  --panel: rgba(2, 10, 14, 0.94);
+  --line: rgba(95, 227, 255, 0.22);
+  --glow: #5fe3ff;
+  --glow-soft: rgba(95, 227, 255, 0.55);
+  --text: #cfeaf3;
+  --dim: #6f8f9c;
   --display: "Chakra Petch", "Eurostile", "Arial Narrow", sans-serif;
   --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
-body {
-  margin: 0; background: var(--void); color: var(--text);
-  font-family: var(--body); font-size: 15px; line-height: 1.55;
-  background-image:
-    radial-gradient(ellipse at 50% 45%, rgba(95,227,255,0.07), transparent 60%),
-    linear-gradient(rgba(95,227,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(95,227,255,0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 36px 36px, 36px 36px;
-}
-a { color: var(--arc); text-underline-offset: 3px; }
-:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+body { margin: 0; background: var(--black); color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.55; overflow: hidden; }
 button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
+a { color: var(--glow); text-underline-offset: 3px; }
 
-.app {
-  height: 100%; display: grid;
-  grid-template-columns: minmax(250px, 300px) minmax(0, 1fr) minmax(300px, 380px);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  grid-template-areas: "top top top" "left stage right" "bot bot bot";
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  gap: 0 20px;
-}
-.mono { font-family: var(--mono); }
-.label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--arc); }
-.label.d { color: var(--dim); }
+.room { position: relative; height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px; flex-wrap: wrap;
+  padding-block: 16px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.brand { font-family: var(--display); font-weight: 700; letter-spacing: .2em; text-transform: uppercase; font-size: 14px; color: var(--glow); text-shadow: 0 0 10px var(--glow-soft); }
+.brand span { color: var(--dim); text-shadow: none; font-weight: 500; letter-spacing: .14em; font-size: 11px; font-family: var(--mono); margin-left: 10px; }
+nav.subs { display: flex; border: 1px solid var(--line); box-shadow: 0 0 18px rgba(95,227,255,.08) inset; }
+nav.subs button { background: none; border: 0; border-left: 1px solid var(--line); padding: 10px 18px; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+nav.subs button:first-child { border-left: 0; }
+nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); text-shadow: 0 0 8px var(--glow-soft); background: rgba(95,227,255,.05); }
 
-/* top + bottom bars */
-.top { grid-area: top; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-size: 14px; }
-.reactor { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--arc); box-shadow: 0 0 10px var(--arc); position: relative; }
-.reactor::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--arc); }
-.sys { display: flex; gap: 16px; font-family: var(--mono); font-size: 11px; color: var(--dim); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
-.sys .on { color: var(--ok); }
-.bot { grid-area: bot; display: flex; justify-content: space-between; gap: 8px 20px; padding-block: 12px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11.5px; color: var(--dim); flex-wrap: wrap; }
-.bot .ch { display: flex; gap: 6px 20px; flex-wrap: wrap; }
-.bot b { color: var(--arc); font-weight: 500; margin-right: 6px; }
+.stage { position: relative; min-height: 0; }
+#scene { width: 100%; height: 100%; display: block; }
+.hint { position: absolute; left: max(20px, env(safe-area-inset-left, 0px)); top: 4px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 11px; color: var(--dim);
+  padding-block: 12px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); border-top: 1px solid var(--line); }
 
-/* left column */
-.left { grid-area: left; padding-block: 28px; display: flex; flex-direction: column; gap: 22px; min-height: 0; overflow: auto; }
-.left h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 2.8vw, 40px); line-height: 1.02; margin: 8px 0 0; text-wrap: balance; }
-.left h1 em { font-style: normal; color: var(--arc); }
-.left p { margin: 0; color: var(--text); }
-.facts { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
-.facts div { background: var(--panel); padding: 8px 12px; display: grid; grid-template-columns: 76px minmax(0,1fr); gap: 8px; }
-.facts dt { font-family: var(--mono); font-size: 10.5px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; padding-top: 2px; }
-.facts dd { margin: 0; font-size: 14px; }
-.hint { font-family: var(--mono); font-size: 11.5px; color: var(--gold); display: flex; gap: 8px; align-items: center; }
-.hint::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: blink 1.6s steps(2) infinite; }
-@keyframes blink { 50% { opacity: .25; } }
+/* svg pieces */
+.glowline { filter: drop-shadow(0 0 4px var(--glow)) drop-shadow(0 0 10px rgba(95,227,255,.35)); }
+.hit { cursor: pointer; }
+.node .ring { fill: none; stroke: var(--glow); stroke-width: 1; transform-box: fill-box; transform-origin: center; animation: ping 2.6s ease-out infinite; }
+.node .dot { fill: var(--glow); }
+.node .core { fill: #000; stroke: var(--glow); stroke-width: 1.5; }
+.node text, .tag text { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; fill: var(--dim); text-transform: uppercase; }
+.node:hover .core, .node.active .core { fill: var(--glow); }
+.node:hover text, .node.active text, .me:hover .tag text, .me.active .tag text { fill: var(--glow); }
+.node.heart .dot { transform-box: fill-box; transform-origin: center; animation: beat 1s ease-in-out infinite; }
+.node:focus, .me:focus { outline: none; }
+.node:focus-visible .core { stroke-width: 3; }
+.me:hover .body, .me.active .body, .me:focus-visible .body { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 18px rgba(95,227,255,.6)); }
+.scanring { animation: scan 6s ease-in-out infinite alternate; }
+@keyframes scan { from { transform: translateY(0); } to { transform: translateY(410px); } }
+@keyframes ping { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.6); } 30% { transform: scale(1.1); } 45% { transform: scale(1.4); } }
+@media (prefers-reduced-motion: reduce) { .node .ring, .node.heart .dot, .scanring { animation: none; } }
 
-/* stage */
-.stage { grid-area: stage; position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; padding-block: 8px; }
-#vit { width: 100%; height: 100%; max-height: 100%; display: block; }
-.node { cursor: pointer; }
-.node .halo { fill: none; stroke: var(--arc); stroke-width: 1.2; transform-box: fill-box; transform-origin: center; animation: ping 2.6s ease-out infinite; }
-.node .core { fill: var(--void); stroke: var(--arc); stroke-width: 2; transition: fill .2s; }
-.node .pip { fill: var(--arc); }
-.node text { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; fill: var(--dim); text-transform: uppercase; transition: fill .2s; }
-.node:hover .core, .node.active .core { fill: rgba(255,181,71,.18); stroke: var(--gold); }
-.node:hover .pip, .node.active .pip { fill: var(--gold); }
-.node:hover text, .node.active text { fill: var(--gold); }
-.node.active .halo { stroke: var(--gold); }
-.node.heart .pip { fill: var(--pulse); transform-box: fill-box; transform-origin: center; animation: beat 1s ease-in-out infinite; }
-.node.heart .core { stroke: var(--pulse); }
-.node.heart .halo { stroke: var(--pulse); }
-.node:focus { outline: none; }
-.node:focus-visible .core { stroke: var(--gold); stroke-width: 3; }
-@keyframes ping { 0% { transform: scale(.7); opacity: .9; } 100% { transform: scale(2); opacity: 0; } }
-@keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.5); } 30% { transform: scale(1.1); } 45% { transform: scale(1.35); } }
-.spin { transform-origin: 300px 290px; animation: rot 120s linear infinite; }
-@keyframes rot { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .node .halo, .node.heart .pip, .spin, .hint::before { animation: none; } }
-
-/* right column */
-.right { grid-area: right; padding-block: 28px; min-height: 0; overflow: auto; }
-.panel { position: relative; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); padding: 20px 20px 22px; }
-.panel::before { content: ""; position: absolute; top: 6px; left: 6px; width: 12px; height: 12px; border: solid var(--arc); border-width: 1px 0 0 1px; opacity: .7; }
-.index { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 0; }
-.index button { width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 12px 4px; cursor: pointer; display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 10px; align-items: baseline; }
-.index button:hover { background: rgba(95,227,255,.05); }
-.index .c { font-family: var(--mono); font-size: 11px; color: var(--gold); }
-.index .t { font-family: var(--display); font-weight: 600; font-size: 16px; }
-.index .s { display: block; font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--dim); }
-.index .arrow { font-family: var(--mono); color: var(--dim); }
-
-.detail[hidden], .home[hidden] { display: none !important; }
-.back { background: none; border: 1px solid var(--line); color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 10px; cursor: pointer; }
-.back:hover { color: var(--arc); border-color: var(--arc); }
-.dh { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
-.detail h2 { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.12; margin: 6px 0 10px; text-wrap: balance; }
-.detail p { margin: 0 0 12px; }
-.detail ul.pts { margin: 0 0 14px; padding-left: 18px; }
-.detail ul.pts li { margin-bottom: 6px; }
-.st { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; }
-.st::before { content: ""; width: 8px; height: 8px; background: currentColor; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
-.st.done { color: var(--ok); } .st.wip { color: var(--gold); } .st.plan { color: var(--arc); } .st.todo { color: var(--pulse); }
-.med { font-size: 14px; color: var(--dim); border-left: 2px solid var(--pulse); padding-left: 10px; margin: 0 0 14px; }
-.med b { display: block; color: var(--pulse); font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; }
+/* info panel */
+.panel { position: absolute; top: 12px; right: max(20px, env(safe-area-inset-right, 0px)); bottom: 12px; width: min(400px, calc(100% - 40px)); overflow: auto; z-index: 5;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: 0 0 30px rgba(95,227,255,.12), inset 0 0 40px rgba(95,227,255,.04);
+  padding: 20px 22px 24px; backdrop-filter: blur(6px); }
+.ph { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.label { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--glow); }
+.close { background: none; border: 1px solid var(--line); color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; padding: 5px 10px; cursor: pointer; text-transform: uppercase; }
+.close:hover { color: var(--glow); border-color: var(--glow); }
+.panel h2 { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.12; margin: 6px 0 10px; color: #eaf8fc; text-wrap: balance; }
+.panel h3 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 4px 0 6px; color: #eaf8fc; }
+.panel p { margin: 0 0 12px; }
+.panel ul.pts { margin: 0 0 14px; padding-left: 18px; }
+.panel ul.pts li { margin-bottom: 6px; }
+.st { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); border: 1px solid var(--line); padding: 2px 8px; display: inline-block; }
+.st.live { color: var(--glow); border-color: var(--glow-soft); }
+.med { font-size: 14px; color: var(--dim); border-left: 2px solid var(--glow); padding-left: 10px; margin: 0 0 14px; }
+.med b { display: block; color: var(--glow); font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; }
 .specs { display: flex; flex-wrap: wrap; gap: 6px; }
 .specs span { font-family: var(--mono); font-size: 11px; color: var(--dim); border: 1px solid var(--line); padding: 3px 8px; }
 .sub { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
-.sub h3 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 4px 0 6px; }
-.placeholder { border: 1px dashed var(--pulse); color: var(--pulse); font-family: var(--mono); font-size: 12px; padding: 10px; margin-bottom: 14px; }
-
-/* mini finger demo */
-.demo { border: 1px solid var(--line); background: rgba(4,8,12,.6); padding: 10px; margin: 0 0 14px; }
+.kv { display: grid; gap: 0; margin: 0 0 14px; border-top: 1px solid var(--line); }
+.kv div { display: grid; grid-template-columns: 90px minmax(0,1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.kv dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding-top: 2px; }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.list { list-style: none; margin: 8px 0 0; padding: 0; }
+.list button { width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 11px 2px; cursor: pointer; display: grid; grid-template-columns: 46px minmax(0,1fr) auto; gap: 10px; align-items: baseline; }
+.list button:hover { background: rgba(95,227,255,.05); }
+.list .c { font-family: var(--mono); font-size: 11px; color: var(--glow); }
+.list .t { font-family: var(--display); font-weight: 600; font-size: 16px; color: #eaf8fc; }
+.list .s { display: block; font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--dim); }
+.list .a { color: var(--dim); font-family: var(--mono); }
+.demo, .ecg { border: 1px solid var(--line); background: #000; margin: 0 0 14px; }
+.demo { padding: 10px; }
 .demo svg { width: 100%; height: auto; display: block; }
 .demo .row { display: flex; align-items: center; gap: 10px; }
 .demo label { font-family: var(--mono); font-size: 10.5px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
-.demo input { flex: 1; min-width: 0; accent-color: var(--arc); }
-.demo output { font-family: var(--mono); font-size: 12px; color: var(--arc); font-variant-numeric: tabular-nums; min-width: 92px; text-align: right; }
-.ecg { width: 100%; height: 54px; display: block; margin: 0 0 14px; border: 1px solid var(--line); background: rgba(4,8,12,.6); }
-.ecg path { fill: none; stroke: var(--pulse); stroke-width: 1.6; stroke-dasharray: 900; animation: trace 2.4s linear infinite; }
+.demo input { flex: 1; min-width: 0; accent-color: var(--glow); }
+.demo output { font-family: var(--mono); font-size: 12px; color: var(--glow); font-variant-numeric: tabular-nums; min-width: 84px; text-align: right; }
+.ecg { width: 100%; height: 54px; display: block; }
+.ecg path { fill: none; stroke: var(--glow); stroke-width: 1.6; stroke-dasharray: 900; animation: trace 2.4s linear infinite; filter: drop-shadow(0 0 3px var(--glow)); }
 @keyframes trace { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .ecg path { animation: none; stroke-dasharray: none; } }
 
-/* narrow screens: scroll page, figure on top, detail as sheet */
-@media (max-width: 980px) {
-  html, body { height: auto; }
-  .app { height: auto; grid-template-columns: minmax(0,1fr); grid-template-rows: auto; grid-template-areas: "top" "stage" "left" "right" "bot"; }
-  .stage { height: min(82vh, 640px); }
-  .left, .right { overflow: visible; padding-block: 20px; }
-  .detail { position: fixed; left: 0; right: 0; bottom: 0; max-height: 78vh; overflow: auto; z-index: 20; padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); clip-path: none; border-width: 1px 0 0; box-shadow: 0 -20px 40px rgba(0,0,0,.6); }
+@media (max-width: 760px) {
+  nav.subs button { padding: 9px 11px; font-size: 11px; letter-spacing: .08em; }
+  .panel { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 72%; border-width: 1px 0 0;
+    padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .hint { font-size: 10px; letter-spacing: .06em; }
 }
 </style>
 </head>
 <body>
 
-<div class="app">
+<div class="room">
   <header class="top">
-    <div class="brand"><span class="reactor" aria-hidden="true"></span>Chanwoo Kim <span class="label d" style="letter-spacing:.1em">/ ME · BU 2027</span></div>
-    <div class="sys" aria-hidden="true"><span>NODES 07</span><span>BOS <span id="clock">--:--:--</span></span><span class="on">● ONLINE</span></div>
+    <div class="brand">Chanwoo Kim<span>ME · BU 2027</span></div>
+    <nav class="subs" aria-label="Sections">
+      <button type="button" data-sec="about" aria-pressed="false">About</button>
+      <button type="button" data-sec="projects" aria-pressed="false">Projects</button>
+      <button type="button" data-sec="research" aria-pressed="false">Research</button>
+      <button type="button" data-sec="contact" aria-pressed="false">Contact</button>
+    </nav>
   </header>
 
-  <aside class="left">
-    <div>
-      <span class="label">Mechanical Engineering · Boston University</span>
-      <h1>Soft machines that move <em>with the body.</em></h1>
-    </div>
-    <p>I build hybrid soft actuators, rigid bones with air driven silicone joints, and I want to bring them into prosthetics, rehabilitation and medical devices.</p>
-    <dl class="facts">
-      <div><dt>Lab</dt><dd>Frumkin Lab, BU (2026 to now)</dd></div>
-      <div><dt>Prior</dt><dd>KAIST Biomechanics Lab · ROK Army combat medic</dd></div>
-      <div><dt>Focus</dt><dd>Soft robotics · Prosthetics · Biomechanics</dd></div>
-      <div><dt>Tools</dt><dd>SolidWorks · MATLAB · LabVIEW · Python · C/C++ · Arduino · Vicon</dd></div>
-    </dl>
-    <span class="hint">Select a node on the body</span>
-  </aside>
-
   <main class="stage">
-    <svg id="vit" viewBox="40 40 520 500" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Robotic Vitruvian figure. Each glowing node opens a project.">
+    <svg id="scene" viewBox="20 26 840 584" preserveAspectRatio="xMidYMid meet" role="group" aria-label="A capsule holding a robotic body with glowing nerves, and Chanwoo in a lab coat holding a note">
       <defs>
-        <radialGradient id="rg"><stop offset="0" stop-color="#5fe3ff" stop-opacity=".16"/><stop offset="1" stop-color="#5fe3ff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="glass" x1="0" x2="1">
+          <stop offset="0" stop-color="#5fe3ff" stop-opacity=".10"/>
+          <stop offset=".12" stop-color="#5fe3ff" stop-opacity=".02"/>
+          <stop offset=".78" stop-color="#5fe3ff" stop-opacity=".0"/>
+          <stop offset=".9" stop-color="#5fe3ff" stop-opacity=".07"/>
+          <stop offset="1" stop-color="#5fe3ff" stop-opacity=".12"/>
+        </linearGradient>
+        <filter id="dilate" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="1.6"/></filter>
+        <radialGradient id="floor"><stop offset="0" stop-color="#5fe3ff" stop-opacity=".35"/><stop offset="1" stop-color="#5fe3ff" stop-opacity="0"/></radialGradient>
+        <clipPath id="tankClip"><path d="M140 100 V552 A130 22 0 0 0 400 552 V100 A130 22 0 0 0 140 100 Z"/></clipPath>
+
+        <!-- capsule body geometry -->
+        <g id="android">
+          <ellipse cx="270" cy="150" rx="25" ry="31"/>
+          <rect x="259" y="172" width="22" height="34" rx="8"/>
+          <path d="M226 202 Q270 190 314 202 Q324 214 320 246 Q308 296 302 336 L306 372 H234 L238 336 Q232 296 220 246 Q216 214 226 202 Z"/>
+          <polyline points="228,212 204,296 192,376" fill="none" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="312,212 336,296 348,376" fill="none" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="252,362 248,450 246,528" fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="288,362 292,450 294,528" fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+
+        <!-- me in a lab coat -->
+        <g id="me">
+          <circle cx="720" cy="214" r="25"/>
+          <rect x="710" y="234" width="20" height="22" rx="6"/>
+          <polyline points="704,474 702,560" fill="none" stroke-width="20" stroke-linecap="round"/>
+          <polyline points="736,474 738,560" fill="none" stroke-width="20" stroke-linecap="round"/>
+          <path d="M688 256 Q720 246 752 256 L760 300 L774 486 Q720 498 666 486 L680 300 Z"/>
+          <polyline points="752,266 768,352 762,420" fill="none" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="690,266 660,330 626,322" fill="none" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
       </defs>
-      <circle cx="300" cy="290" r="240" fill="url(#rg)"/>
-      <!-- Vitruvian geometry -->
-      <g fill="none" stroke="#ffb547" stroke-opacity=".45" stroke-width="1">
-        <circle cx="300" cy="290" r="215"/>
-        <rect x="115" y="80" width="370" height="370"/>
+
+      <!-- floor glow -->
+      <ellipse cx="270" cy="560" rx="200" ry="30" fill="url(#floor)"/>
+      <ellipse cx="720" cy="566" rx="90" ry="14" fill="url(#floor)" opacity=".6"/>
+
+      <!-- capsule: back half -->
+      <path d="M140 552 A130 22 0 0 1 400 552" fill="none" stroke="#5fe3ff" stroke-opacity=".25"/>
+      <path d="M140 100 A130 22 0 0 1 400 100" fill="none" stroke="#5fe3ff" stroke-opacity=".35"/>
+      <rect x="140" y="100" width="260" height="452" fill="url(#glass)"/>
+
+      <!-- android: outline by union trick -->
+      <g class="glowline">
+        <use href="#android" fill="#5fe3ff" stroke="#5fe3ff" filter="url(#dilate)"/>
       </g>
-      <g class="spin" stroke="#ffb547" stroke-opacity=".35" id="ticks"></g>
-      <g fill="#7c97a6" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1">
-        <text x="119" y="463">QVADRATVS</text>
-        <text x="481" y="463" text-anchor="end">370 mm</text>
-        <text x="300" y="70" text-anchor="middle">CIRCVLVS · r 215</text>
-      </g>
-      <!-- ghost pose -->
-      <g fill="none" stroke="#5fe3ff" stroke-opacity=".22" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="252,170 191,160 130,155"/>
-        <polyline points="348,170 409,160 470,155"/>
-        <polyline points="280,305 248,386 187,474"/>
-        <polyline points="320,305 352,386 413,474"/>
-      </g>
-      <!-- body -->
-      <g id="bones" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <g stroke="#123245" stroke-width="13">
-          <polyline points="252,170 185,172 118,174"/>
-          <polyline points="348,170 415,172 482,174"/>
-          <polyline points="280,305 284,378 290,448"/>
-          <polyline points="320,305 316,378 310,448"/>
-          <line x1="300" y1="146" x2="300" y2="170"/>
-        </g>
-        <g stroke="#5fe3ff" stroke-opacity=".75" stroke-width="1.4">
-          <polyline points="252,170 185,172 118,174"/>
-          <polyline points="348,170 415,172 482,174"/>
-          <polyline points="280,305 284,378 290,448"/>
-          <polyline points="320,305 316,378 310,448"/>
-        </g>
-      </g>
-      <path d="M252 170 H348 L336 248 L320 292 H280 L264 248 Z" fill="#0b1822" stroke="#5fe3ff" stroke-opacity=".7" stroke-width="1.4"/>
-      <path d="M272 300 H328 L320 314 H280 Z" fill="#0b1822" stroke="#5fe3ff" stroke-opacity=".7" stroke-width="1.4"/>
-      <g stroke="#5fe3ff" stroke-opacity=".25" fill="none">
-        <path d="M270 190 Q300 200 330 190 M268 210 Q300 222 332 210 M270 230 Q300 242 330 230"/>
-      </g>
-      <circle cx="300" cy="116" r="30" fill="#0b1822" stroke="#5fe3ff" stroke-opacity=".8" stroke-width="1.4"/>
-      <path d="M280 120 H320" stroke="#5fe3ff" stroke-width="3" stroke-linecap="round" opacity=".55"/>
-      <g fill="#04080c" stroke="#5fe3ff" stroke-width="1.4" id="joints"></g>
-      <!-- neural network -->
-      <g id="net" stroke="#5fe3ff" stroke-opacity=".28" stroke-width="1"></g>
+      <use href="#android" fill="#000" stroke="#000"/>
+      <g id="nerves" stroke="#5fe3ff" stroke-opacity=".5" stroke-width="1" fill="none"></g>
       <g id="pulses" fill="#5fe3ff"></g>
+
+      <!-- capsule: front half -->
+      <g clip-path="url(#tankClip)"><ellipse class="scanring" cx="270" cy="120" rx="130" ry="22" fill="none" stroke="#5fe3ff" stroke-opacity=".35"/></g>
+      <g fill="none" stroke="#5fe3ff" class="glowline">
+        <line x1="140" y1="100" x2="140" y2="552" stroke-opacity=".7"/>
+        <line x1="400" y1="100" x2="400" y2="552" stroke-opacity=".7"/>
+        <path d="M140 100 A130 22 0 0 0 400 100" stroke-opacity=".8"/>
+        <path d="M140 552 A130 22 0 0 0 400 552" stroke-opacity=".8"/>
+      </g>
+      <path d="M128 92 A142 26 0 0 1 412 92 V80 A142 26 0 0 0 128 80 Z" fill="#000" stroke="#5fe3ff" stroke-opacity=".6"/>
+      <path d="M128 560 A142 26 0 0 0 412 560 V578 A142 26 0 0 1 128 578 Z" fill="#000" stroke="#5fe3ff" stroke-opacity=".6"/>
+      <line x1="160" y1="130" x2="160" y2="520" stroke="#5fe3ff" stroke-opacity=".12" stroke-width="5"/>
+      <g font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="2" fill="#6f8f9c">
+        <text x="270" y="40" text-anchor="middle">UNIT CK-01 · SOFT BIOMECHANICAL</text>
+      </g>
+
       <g id="nodes"></g>
+
+      <!-- me -->
+      <g class="me hit" id="meBtn" tabindex="0" role="button" aria-label="Chanwoo Kim, open my info">
+        <rect x="560" y="170" width="230" height="400" fill="transparent"/>
+        <g class="body">
+          <g class="glowline"><use href="#me" fill="#5fe3ff" stroke="#5fe3ff" filter="url(#dilate)"/></g>
+          <use href="#me" fill="#000" stroke="#000"/>
+          <!-- coat details -->
+          <g fill="none" stroke="#5fe3ff" stroke-opacity=".6" stroke-width="1.2">
+            <path d="M708 256 L720 292 L732 256"/>
+            <line x1="720" y1="292" x2="716" y2="488"/>
+            <line x1="742" y1="380" x2="758" y2="380"/>
+            <circle cx="722" cy="318" r="1.6"/><circle cx="721" cy="360" r="1.6"/><circle cx="720" cy="402" r="1.6"/>
+          </g>
+          <!-- note -->
+          <g transform="rotate(-8 600 310)">
+            <rect x="572" y="276" width="56" height="74" fill="#000" stroke="#5fe3ff" stroke-width="1.6" class="glowline"/>
+            <g stroke="#5fe3ff" stroke-opacity=".55"><line x1="580" y1="292" x2="618" y2="292"/><line x1="580" y1="304" x2="614" y2="304"/><line x1="580" y1="316" x2="620" y2="316"/><line x1="580" y1="328" x2="606" y2="328"/></g>
+          </g>
+        </g>
+        <g class="tag"><text x="720" y="166" text-anchor="middle">Chanwoo Kim · Engineer</text></g>
+      </g>
     </svg>
+    <span class="hint">Tap a nerve node · Tap me for my info</span>
   </main>
 
-  <aside class="right">
-    <div class="panel home" id="home">
-      <span class="label">Node index</span>
-      <ul class="index" id="index"></ul>
-    </div>
-    <div class="panel detail" id="detail" hidden aria-live="polite">
-      <div class="dh"><span class="label" id="dLabel"></span><button class="back" id="back" type="button">← Index</button></div>
-      <div id="dBody"></div>
-    </div>
-  </aside>
+  <footer class="foot"><span>ckim1210@bu.edu</span><span>© 2026 Chanwoo Kim · Boston, MA</span></footer>
 
-  <footer class="bot">
-    <div class="ch"><span><b>EMAIL</b>ckim1210@bu.edu</span><span><b>LINKEDIN</b><a href="https://www.linkedin.com/in/ckim1210">in/ckim1210</a></span><span><b>GITHUB</b><a href="https://github.com/cwkim1210">cwkim1210</a></span></div>
-    <span>© 2026 Chanwoo Kim · Boston, MA</span>
-  </footer>
+  <aside class="panel" id="panel" hidden aria-live="polite">
+    <div class="ph"><span class="label" id="pLabel"></span><button class="close" id="pClose" type="button">Close ✕</button></div>
+    <div id="pBody"></div>
+  </aside>
 </div>
 
 <script>
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
   const $ = id => document.getElementById(id);
-  const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const mk = (tag, a, p) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // clock
-  const clock = $('clock');
-  const tick = () => { try { clock.textContent = new Date().toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }); } catch (e) {} };
-  tick(); setInterval(tick, 1000);
-
-  // ticks around the circle
-  const ticks = $('ticks');
-  for (let i = 0; i < 72; i++) {
-    const a = i * Math.PI / 36, r1 = 215, r2 = i % 6 ? 221 : 229;
-    mk('line', { x1: 300 + r1 * Math.cos(a), y1: 290 + r1 * Math.sin(a), x2: 300 + r2 * Math.cos(a), y2: 290 + r2 * Math.sin(a) }, ticks);
-  }
-
-  // joints
-  const J = { neck: [300,152], shL: [252,170], shR: [348,170], elL: [185,172], elR: [415,172], hL: [118,174], hR: [482,174], hipL: [280,305], hipR: [320,305], knL: [284,378], knR: [316,378], ftL: [290,448], ftR: [310,448], pelvis: [300,300] };
-  ['shL','shR','elL','elR','hipL','hipR','knL','ftL','ftR'].forEach(k => mk('circle', { cx: J[k][0], cy: J[k][1], r: 5.5 }, $('joints')));
-
-  // project nodes
-  const N = {
-    brain: { xy: [300,112], code: 'N-01', name: 'Mission', sub: 'Who I am and where I am headed', lx: 0, ly: -46, anchor: 'middle' },
-    heart: { xy: [284,200], code: 'N-02', name: 'Heart Rate Monitor', sub: 'Cardiac signal acquisition', lx: -26, ly: 4, anchor: 'end' },
-    lung:  { xy: [322,218], code: 'N-03', name: 'Gait Thermodynamics', sub: 'KAIST heat flux sensors', lx: 26, ly: 4, anchor: 'start' },
-    core:  { xy: [300,268], code: 'N-04', name: 'Thermal Core', sub: 'Capstone heat recovery', lx: 26, ly: 16, anchor: 'start' },
-    hand:  { xy: [482,174], code: 'N-05', name: 'Soft Hands', sub: 'Finger and gripper builds', lx: 0, ly: -26, anchor: 'middle' },
-    eye:   { xy: [118,174], code: 'N-06', name: 'Mechatronics', sub: 'Autonomous puck launcher', lx: 0, ly: -26, anchor: 'middle' },
-    knee:  { xy: [316,378], code: 'N-07', name: 'Lower Limb', sub: 'Fracture model and soft leg', lx: 26, ly: 4, anchor: 'start' }
+  // nerve network inside the android
+  const P = {
+    brain: [270,146], neck: [270,190], chest: [270,222], heart: [258,240], lung: [286,262], core: [270,312], pelvis: [270,352],
+    shL: [232,214], elL: [205,296], eye: [192,372], shR: [308,214], elR: [335,296], hand: [348,372],
+    hipL: [254,362], knL: [249,450], ftL: [246,522], hipR: [286,362], knee: [292,450], ftR: [294,522]
   };
+  const E = [['brain','neck'],['neck','chest'],['chest','heart'],['chest','lung'],['heart','core'],['lung','core'],['core','pelvis'],
+    ['chest','shL'],['shL','elL'],['elL','eye'],['chest','shR'],['shR','elR'],['elR','hand'],
+    ['pelvis','hipL'],['hipL','knL'],['knL','ftL'],['pelvis','hipR'],['hipR','knee'],['knee','ftR'],['heart','lung'],['neck','shL'],['neck','shR']];
+  const nerves = $('nerves');
+  E.forEach(([a,b]) => {
+    const A = P[a], B = P[b], mx = (A[0]+B[0])/2 + (A[1]-B[1])*0.08, my = (A[1]+B[1])/2 + (B[0]-A[0])*0.08;
+    mk('path', { d: `M${A[0]} ${A[1]} Q${mx} ${my} ${B[0]} ${B[1]}` }, nerves);
+  });
+  [[258,136],[282,136],[262,160],[280,160],[270,130]].forEach(p => mk('line', { x1: p[0], y1: p[1], x2: 270, y2: 146 }, nerves));
 
-  // neural edges
-  const P = Object.assign({}, J, { brain: N.brain.xy, heart: N.heart.xy, lung: N.lung.xy, core: N.core.xy, hand: N.hand.xy, eye: N.eye.xy, knee: N.knee.xy });
-  const E = [['brain','neck'],['neck','heart'],['neck','lung'],['heart','lung'],['heart','core'],['lung','core'],['core','pelvis'],['neck','shL'],['neck','shR'],['shL','elL'],['elL','eye'],['shR','elR'],['elR','hand'],['pelvis','hipL'],['pelvis','hipR'],['hipL','knL'],['knL','ftL'],['hipR','knee'],['knee','ftR'],['shR','lung'],['shL','heart'],['brain','shL'],['brain','shR'],['core','hipL'],['core','hipR']];
-  const net = $('net');
-  E.forEach(([a,b]) => mk('line', { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1] }, net));
-  // neurons inside head
-  [[288,104],[312,104],[294,126],[308,126]].forEach(p => { mk('line', { x1: p[0], y1: p[1], x2: 300, y2: 112 }, net); mk('circle', { cx: p[0], cy: p[1], r: 1.8, fill: '#5fe3ff', 'fill-opacity': .6 }, net); });
-
+  const N = {
+    brain: { code: 'N-01', name: 'Mission', sub: 'Why medical robotics', side: 'r' },
+    heart: { code: 'N-02', name: 'Heart Rate Monitor', sub: 'Wearable for elderly users', side: 'r' },
+    lung:  { code: 'N-03', name: 'Gait Thermodynamics', sub: 'KAIST heat flux sensors', side: 'r' },
+    core:  { code: 'N-04', name: 'Thermal Core', sub: 'Capstone heat recovery', side: 'r' },
+    hand:  { code: 'N-05', name: 'Soft Hands', sub: 'Finger and gripper builds', side: 'r' },
+    eye:   { code: 'N-06', name: 'Mechatronics', sub: 'Autonomous puck launcher', side: 'l' },
+    knee:  { code: 'N-07', name: 'Lower Limb', sub: 'Fracture model and soft leg', side: 'r' }
+  };
   const nodesG = $('nodes');
-  Object.entries(N).forEach(([key, n]) => {
-    const g = mk('g', { class: 'node' + (key === 'heart' ? ' heart' : ''), tabindex: 0, role: 'button', 'aria-label': n.name, 'data-key': key }, nodesG);
-    mk('circle', { class: 'halo', cx: n.xy[0], cy: n.xy[1], r: 11 }, g);
-    mk('circle', { class: 'core', cx: n.xy[0], cy: n.xy[1], r: 10 }, g);
-    mk('circle', { class: 'pip', cx: n.xy[0], cy: n.xy[1], r: 4 }, g);
-    const t = mk('text', { x: n.xy[0] + n.lx, y: n.xy[1] + n.ly, 'text-anchor': n.anchor }, g);
-    t.textContent = n.name;
-    g.addEventListener('click', () => open(key));
-    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(key); } });
+  Object.entries(N).forEach(([k, n]) => {
+    const [x, y] = P[k];
+    const g = mk('g', { class: 'node hit' + (k === 'heart' ? ' heart' : ''), tabindex: 0, role: 'button', 'aria-label': n.name, 'data-key': k }, nodesG);
+    const r = n.side === 'r', tx = r ? 416 : 124;
+    mk('line', { x1: x + (r ? 10 : -10), y1: y, x2: tx + (r ? -6 : 6), y2: y, stroke: '#5fe3ff', 'stroke-opacity': .25, 'stroke-dasharray': '2 3' }, g);
+    mk('circle', { class: 'ring', cx: x, cy: y, r: 8 }, g);
+    mk('circle', { class: 'core', cx: x, cy: y, r: 7 }, g);
+    mk('circle', { class: 'dot', cx: x, cy: y, r: 3 }, g);
+    mk('circle', { cx: x, cy: y, r: 16, fill: 'transparent' }, g);
+    const t = mk('text', { x: tx, y: y + 3, 'text-anchor': r ? 'start' : 'end' }, g); t.textContent = n.name;
+    g.addEventListener('click', () => show(k));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(k); } });
   });
 
-  // pulses along edges
   if (!reduce) {
     const pg = $('pulses');
-    const pulses = Array.from({ length: 16 }, () => ({ el: mk('circle', { r: 2.2, opacity: .9 }, pg), e: null, t: Math.random(), s: 0 }));
-    const reset = p => { p.e = E[Math.floor(Math.random() * E.length)]; if (Math.random() < .5) p.e = [p.e[1], p.e[0]]; p.t = 0; p.s = 0.004 + Math.random() * 0.008; };
-    pulses.forEach(reset);
+    const ps = Array.from({ length: 18 }, () => ({ el: mk('circle', { r: 2 }, pg) }));
+    const reset = p => { p.e = E[Math.floor(Math.random() * E.length)]; if (Math.random() < .5) p.e = [p.e[1], p.e[0]]; p.t = 0; p.s = .005 + Math.random() * .01; };
+    ps.forEach(p => { reset(p); p.t = Math.random(); });
     (function loop() {
-      pulses.forEach(p => {
+      ps.forEach(p => {
         p.t += p.s; if (p.t >= 1) reset(p);
-        const a = P[p.e[0]], b = P[p.e[1]];
-        p.el.setAttribute('cx', a[0] + (b[0] - a[0]) * p.t);
-        p.el.setAttribute('cy', a[1] + (b[1] - a[1]) * p.t);
-        p.el.setAttribute('opacity', Math.sin(p.t * Math.PI).toFixed(2));
+        const A = P[p.e[0]], B = P[p.e[1]], t = p.t;
+        const mx = (A[0]+B[0])/2 + (A[1]-B[1])*0.08, my = (A[1]+B[1])/2 + (B[0]-A[0])*0.08;
+        const x = (1-t)*(1-t)*A[0] + 2*(1-t)*t*mx + t*t*B[0], y = (1-t)*(1-t)*A[1] + 2*(1-t)*t*my + t*t*B[1];
+        p.el.setAttribute('cx', x.toFixed(1)); p.el.setAttribute('cy', y.toFixed(1)); p.el.setAttribute('opacity', Math.sin(t * Math.PI).toFixed(2));
       });
       requestAnimationFrame(loop);
     })();
@@ -323,29 +302,40 @@ button { font: inherit; color: inherit; }
 
   // content
   const ecg = '<svg class="ecg" viewBox="0 0 300 54" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 H60 L70 30 L76 22 L82 30 H96 L102 30 L108 6 L116 50 L122 30 H136 L146 24 L156 30 H200 L210 30 L216 22 L222 30 H236 L242 30 L248 6 L256 50 L262 30 H276 L286 24 L296 30 H300"/></svg>';
-  const fingerDemo = '<div class="demo"><svg viewBox="0 0 300 150" aria-label="Soft finger bending model"><rect x="8" y="58" width="30" height="44" fill="none" stroke="#5fe3ff" stroke-opacity=".5"/><g transform="translate(38,80)"><rect x="0" y="-10" width="70" height="20" rx="3" fill="#0e1b26" stroke="#5fe3ff"/><g id="fj1" transform="translate(78,0)"><ellipse class="fs" rx="9" ry="11" fill="rgba(255,181,71,.15)" stroke="#ffb547"/><rect x="8" y="-9" width="58" height="18" rx="3" fill="#0e1b26" stroke="#5fe3ff"/><g id="fj2" transform="translate(74,0)"><ellipse class="fs" rx="8" ry="10" fill="rgba(255,181,71,.15)" stroke="#ffb547"/><path d="M7 -8 H44 Q54 -8 54 0 Q54 8 44 8 H7 Z" fill="#0e1b26" stroke="#5fe3ff"/></g></g></g></svg><div class="row"><label for="fp">Pressure</label><input id="fp" type="range" min="0" max="100" value="35"><output id="fo"></output></div></div>';
+  const finger = '<div class="demo"><svg viewBox="0 0 300 150" aria-label="Soft finger bending model"><rect x="8" y="58" width="30" height="44" fill="none" stroke="#5fe3ff" stroke-opacity=".5"/><g transform="translate(38,80)" fill="#000" stroke="#5fe3ff"><rect x="0" y="-10" width="70" height="20" rx="3"/><g id="fj1" transform="translate(78,0)"><ellipse class="fs" rx="9" ry="11"/><rect x="8" y="-9" width="58" height="18" rx="3"/><g id="fj2" transform="translate(74,0)"><ellipse class="fs" rx="8" ry="10"/><path d="M7 -8 H44 Q54 -8 54 0 Q54 8 44 8 H7 Z"/></g></g></g></svg><div class="row"><label for="fp">Pressure</label><input id="fp" type="range" min="0" max="100" value="35"><output id="fo"></output></div></div>';
 
   const C = {
+    me: { label: 'Profile · Chanwoo Kim', html: `
+      <h2>Chanwoo Kim</h2>
+      <p>Mechanical Engineering student at Boston University building soft robots for the human body: actuators that are safe to touch, sensors that can be trusted on skin, and models of how the body takes load.</p>
+      <dl class="kv">
+        <div><dt>School</dt><dd>Boston University, College of Engineering · B.S. Mechanical Engineering, May 2027</dd></div>
+        <div><dt>Standing</dt><dd>Dean's List, Fall 2024 to present · Last 60 credit GPA 3.94</dd></div>
+        <div><dt>Lab</dt><dd>Frumkin Lab (Applied Interfacial Phenomena), BU</dd></div>
+        <div><dt>Prior</dt><dd>KAIST Biomechanics Lab · ROK Army sergeant, combat medic</dd></div>
+        <div><dt>Goal</dt><dd>Graduate research in prosthetics, rehabilitation and soft wearable devices</dd></div>
+        <div><dt>Language</dt><dd>Korean (native) · English (full professional)</dd></div>
+      </dl>
+      <div class="specs"><span>SolidWorks</span><span>Onshape</span><span>MATLAB</span><span>Python</span><span>C/C++</span><span>LabVIEW</span><span>Arduino</span><span>PCB</span><span>Vicon</span></div>` },
     brain: { label: 'N-01 · Mission', html: `
       <h2>Medical robotics, built soft</h2>
-      <p>Third year Mechanical Engineering student at Boston University (Class of 2027, Dean's List). My work sits between soft robotics and the human body: actuators that are safe to touch, sensors that can be trusted on skin, and models of how the body takes load.</p>
-      <p>Before engineering I served as a combat medic and company counselor in the Republic of Korea Army, responsible for a 10 person squad. That is where caring for bodies became the point of the work for me.</p>
-      <p>Next step: graduate research in prosthetics, rehabilitation robotics and soft wearable devices.</p>
-      <div class="specs"><span>Soft robotics</span><span>Prosthetics</span><span>Biomechanics</span><span>Mechatronics</span><span>Korean · English</span></div>` },
+      <p>Before engineering I served as a combat medic and company counselor in the Republic of Korea Army, responsible for a 10 person squad. Caring for bodies became the point of the work for me.</p>
+      <p>Now I build hybrid soft actuators, rigid bones with air driven silicone joints, and I want to bring them into prosthetics, rehabilitation and medical devices where a robot has to be safe to touch.</p>
+      <div class="specs"><span>Soft robotics</span><span>Prosthetics</span><span>Biomechanics</span><span>Mechatronics</span></div>` },
     heart: { label: 'N-02 · Cardiac', html: `
-      <span class="st done">1st place · May 2025</span>
+      <span class="st live">1st place · May 2025</span>
       <h2>Wearable Heart Rate Monitor</h2>
       ${ecg}
       <ul class="pts">
         <li>Designed for elderly users: Arduino Nano with dual pulse sensors, averaged for tolerance to motion noise</li>
         <li>Visual, auditory and haptic alerts so a warning reaches the wearer whatever their senses allow</li>
         <li>Rechargeable compact build in a laser cut enclosure; fixed power instability with an independent servo supply</li>
-        <li>Won first place in the course wide final project competition and was selected for display in the College of Engineering Hall</li>
+        <li>First place in the course wide final project competition, selected for display in the College of Engineering Hall</li>
       </ul>
       <p class="med"><b>Medical relevance</b>Reliable physiological sensing is the input every closed loop medical device depends on.</p>
       <div class="specs"><span>Arduino Nano</span><span>Pulse sensors</span><span>Signal averaging</span><span>Laser cutting</span></div>` },
     lung: { label: 'N-03 · KAIST Biomechanics Lab', html: `
-      <span class="st done">Completed · Jun to Aug 2025</span>
+      <span class="st">Jun to Aug 2025</span>
       <h2>Heat Flux Sensing of Human Gait</h2>
       <ul class="pts">
         <li>Calibrated wearable heat flux sensors for research on the thermodynamics of human walking, contributing to a master's thesis on lower limb heat flux during gait</li>
@@ -356,65 +346,64 @@ button { font: inherit; color: inherit; }
       <p class="med"><b>Medical relevance</b>Wearables only help patients if their sensors are characterized. This is the groundwork.</p>
       <div class="specs"><span>System ID</span><span>LabVIEW</span><span>PID</span><span>PCB</span><span>Vicon</span><span>Force plates</span></div>` },
     core: { label: 'N-04 · Senior Design', html: `
-      <span class="st wip">In progress · Fall 2026</span>
+      <span class="st live">In progress · Fall 2026</span>
       <h2>Data Center Waste Heat Recovery</h2>
       <p>Six person capstone team developing a system to recover and reuse waste heat from a hyperscale data center, using water to water heat exchange to warm a treatment chamber where a yeast and water mixture produces gas.</p>
       <div class="specs"><span>Heat exchange</span><span>Thermal systems</span><span>Advisor: Prof. McDaniel</span></div>` },
     hand: { label: 'N-05 · Frumkin Lab', html: `
-      <span class="st done">P-01 · Completed</span>
+      <span class="st">P-01 · Completed</span>
       <h2>Two-Joint Hybrid Soft Finger</h2>
-      ${fingerDemo}
-      <p>Fabricated by fluidic shaping, a process that uses capillary self organization of liquids under neutral buoyancy. 3D printed rigid bones meet elastomer joints for both compliance and strength. Model above is illustrative.</p>
+      ${finger}
+      <p>Fabricated by fluidic shaping, which uses capillary self organization of liquids under neutral buoyancy. 3D printed rigid bones meet elastomer joints for both compliance and strength. Model above is illustrative.</p>
       <p class="med"><b>Medical relevance</b>Rigid structure plus compliant joints is a building block for soft prosthetic hands.</p>
-      <div class="sub"><span class="st wip">P-02 · In development</span><h3>Variable Stiffness Gripper</h3><p>Fiber integrated joints made from drop stitch fabric, compliant when vented and stiff when inflated, for tunable adaptive grasping. Edges sealed with a PVC coated polyester strip and vinyl cement.</p></div>
-      <div class="sub"><span class="st plan">P-04 · Planned</span><h3>Three-Finger Silicone Gripper</h3><p>Ecoflex 00-30 cast in 3D printed molds, driven by a syringe pump. Based on the open OptoLAB design.</p></div>
-      <div class="sub"><span class="st done">Lab work</span><h3>Topology Optimized Brackets</h3><p>Assisted in fabricating brackets by fluidic shaping.</p></div>` },
+      <div class="sub"><span class="st live">P-02 · In development</span><h3>Variable Stiffness Gripper</h3><p>Fiber integrated joints made from drop stitch fabric, compliant when vented and stiff when inflated, for tunable adaptive grasping.</p></div>
+      <div class="sub"><span class="st">P-04 · Planned</span><h3>Three-Finger Silicone Gripper</h3><p>Ecoflex 00-30 cast in 3D printed molds and driven by a syringe pump, based on the open OptoLAB design.</p></div>
+      <div class="sub"><span class="st">Lab work</span><h3>Topology Optimized Brackets</h3><p>Assisted in fabricating brackets by fluidic shaping.</p></div>` },
     eye: { label: 'N-06 · Mechatronics', html: `
-      <span class="st done">Completed · Dec 2025</span>
+      <span class="st">Dec 2025</span>
       <h2>Autonomous Puck Launching Game</h2>
       <ul class="pts">
         <li>Designed and built a 2.5 DOF Cartesian system: three stepper driven belt linear stages and a servo driven push pull mechanism that grabs, tensions and launches pucks</li>
         <li>MATLAB vision with camera calibration to detect and localize pucks, integrated with G-code control for autonomous retrieval and launch</li>
       </ul>
       <p class="med"><b>Medical relevance</b>Vision guided positioning and closed loop motion are the core of surgical and rehabilitation robots.</p>
-      <div class="specs"><span>Stepper control</span><span>MATLAB vision</span><span>G-code</span><span>Camera calibration</span></div>` },
-    knee: { label: 'N-06 · Lower limb', html: `
-      <span class="st done">ME500 · Fall 2026</span>
+      <div class="specs"><span>Stepper control</span><span>MATLAB vision</span><span>G-code</span></div>` },
+    knee: { label: 'N-07 · Lower limb', html: `
+      <span class="st">ME500 · Fall 2026</span>
       <h2>Critical Fall Height for Leg Fracture</h2>
       <p>Modeled the knee as a spring damper two bar linkage and the tibia as an Euler buckling column to estimate the landing height at which the leg fractures.</p>
       <p class="med"><b>Medical relevance</b>Lower limb devices live under impact loads. Knowing where bone fails sets their design limits.</p>
-      <div class="sub"><span class="st plan">P-03 · Planned</span><h3>Humanoid Soft Robotic Leg</h3><p>Antagonistic McKibben artificial muscles, PneuNet ankle actuators and rigid bones with Ecoflex joint shells sealed so fluid stays in one chamber. A testbed for soft prosthetic and exoskeleton ideas.</p></div>` }
+      <div class="sub"><span class="st">P-03 · Planned</span><h3>Humanoid Soft Robotic Leg</h3><p>Antagonistic McKibben artificial muscles, PneuNet ankle actuators and rigid bones with Ecoflex joint shells sealed so fluid stays in one chamber.</p></div>` }
+  };
+  const listOf = keys => '<ul class="list">' + keys.map(k => `<li><button type="button" data-go="${k}"><span class="c">${N[k].code}</span><span class="t">${N[k].name}<span class="s">${N[k].sub}</span></span><span class="a">→</span></button></li>`).join('') + '</ul>';
+  const S = {
+    about: () => C.me,
+    projects: () => ({ label: 'Section · Projects', html: '<h2>Every node is a project</h2><p>Each glowing point on the body links to work tied to that part of it.</p>' + listOf(['heart','hand','eye','knee','core']) }),
+    research: () => ({ label: 'Section · Research', html: '<h2>Labs</h2>' + listOf(['hand','lung','brain']) }),
+    contact: () => ({ label: 'Section · Contact', html: `<h2>Open channel</h2><p>Looking for graduate research in medical robotics. Happy to talk.</p>
+      <dl class="kv"><div><dt>Email</dt><dd>ckim1210@bu.edu</dd></div><div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/ckim1210">linkedin.com/in/ckim1210</a></dd></div><div><dt>GitHub</dt><dd><a href="https://github.com/cwkim1210">github.com/cwkim1210</a></dd></div><div><dt>Based</dt><dd>Boston, MA</dd></div></dl>` })
   };
 
-  // index list
-  const index = $('index');
-  Object.entries(N).forEach(([key, n]) => {
-    const li = document.createElement('li');
-    li.innerHTML = '<button type="button"><span class="c"></span><span class="t"><span class="nm"></span><span class="s"></span></span><span class="arrow">→</span></button>';
-    li.querySelector('.c').textContent = n.code; li.querySelector('.nm').textContent = n.name; li.querySelector('.s').textContent = n.sub;
-    li.querySelector('button').addEventListener('click', () => open(key));
-    index.appendChild(li);
-  });
-
-  const home = $('home'), detail = $('detail');
-  function open(key) {
-    $('dLabel').textContent = C[key].label;
-    $('dBody').innerHTML = C[key].html;
-    home.hidden = true; detail.hidden = false;
-    document.querySelectorAll('.node').forEach(n => n.classList.toggle('active', n.dataset.key === key));
+  const panel = $('panel'), meBtn = $('meBtn');
+  function render(c, activeKey, sec) {
+    $('pLabel').textContent = c.label; $('pBody').innerHTML = c.html; panel.hidden = false; panel.scrollTop = 0;
+    document.querySelectorAll('.node').forEach(n => n.classList.toggle('active', n.dataset.key === activeKey));
+    meBtn.classList.toggle('active', activeKey === 'me');
+    document.querySelectorAll('nav.subs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.sec === sec ? 'true' : 'false'));
+    panel.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
     const fp = $('fp');
     if (fp) {
-      const f = () => { const p = fp.value / 100; $('fj1').setAttribute('transform', 'translate(78,0) rotate(' + (62 * p).toFixed(1) + ')'); $('fj2').setAttribute('transform', 'translate(74,0) rotate(' + (78 * p).toFixed(1) + ')'); document.querySelectorAll('.fs').forEach(s => s.setAttribute('fill', 'rgba(255,181,71,' + (.12 + .5 * p).toFixed(2) + ')')); $('fo').textContent = Math.round(62 * p) + '° / ' + Math.round(78 * p) + '°'; };
+      const f = () => { const p = fp.value / 100; $('fj1').setAttribute('transform', 'translate(78,0) rotate(' + (62*p).toFixed(1) + ')'); $('fj2').setAttribute('transform', 'translate(74,0) rotate(' + (78*p).toFixed(1) + ')'); document.querySelectorAll('.fs').forEach(s => s.setAttribute('fill', 'rgba(95,227,255,' + (.08 + .5*p).toFixed(2) + ')')); $('fo').textContent = Math.round(62*p) + '° / ' + Math.round(78*p) + '°'; };
       fp.addEventListener('input', f); f();
     }
-    $('back').focus({ preventScroll: true });
   }
-  function close() {
-    detail.hidden = true; home.hidden = false;
-    document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
-  }
-  $('back').addEventListener('click', close);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !detail.hidden) close(); });
+  function show(k) { render(C[k], k, k === 'me' ? 'about' : null); }
+  function close() { panel.hidden = true; document.querySelectorAll('.node').forEach(n => n.classList.remove('active')); meBtn.classList.remove('active'); document.querySelectorAll('nav.subs button').forEach(b => b.setAttribute('aria-pressed', 'false')); }
+  meBtn.addEventListener('click', () => show('me'));
+  meBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show('me'); } });
+  document.querySelectorAll('nav.subs button').forEach(b => b.addEventListener('click', () => { const c = S[b.dataset.sec](); render(c, b.dataset.sec === 'about' ? 'me' : null, b.dataset.sec); }));
+  $('pClose').addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
 })();
 </script>
 </body>

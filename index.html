@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chanwoo Kim Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Chanwoo Kim, Mechanical Engineering at Boston University. Soft robotics, biomechanics, mechatronics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0}img{max-width:100%}
+/* Layout: engineering drawing sheet. Narrow left rail of section labels, content right; each project is a part with a title block. */
+:root {
+  --paper: #f3f5f7;
+  --sheet: #ffffff;
+  --ink: #15202b;
+  --muted: #5b6875;
+  --rule: #d5dce3;
+  --accent: #2346c8;
+  --accent-soft: #e5eafb;
+  --done: #1d7a4f;
+  --wip: #b46a00;
+  --plan: #6a5bd0;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e141a; --sheet: #151d25; --ink: #e6ebf0; --muted: #93a1ae; --rule: #2a3540;
+    --accent: #8ea6ff; --accent-soft: #1d2747; --done: #5fcf97; --wip: #f0a63a; --plan: #b0a6ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e141a; --sheet: #151d25; --ink: #e6ebf0; --muted: #93a1ae; --rule: #2a3540;
+  --accent: #8ea6ff; --accent-soft: #1d2747; --done: #5fcf97; --wip: #f0a63a; --plan: #b0a6ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+.wrap { max-width: 1040px; margin: 0 auto; }
+
+/* nav */
+nav.top {
+  display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: baseline; justify-content: space-between;
+  padding-block: 22px; border-bottom: 1px solid var(--rule);
+}
+.mark { font-family: var(--display); font-weight: 800; font-stretch: 112%; letter-spacing: -0.01em; font-size: 18px; color: var(--ink); text-decoration: none; }
+nav.top ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; }
+nav.top a.l { font-family: var(--mono); font-size: 13px; color: var(--muted); text-decoration: none; }
+nav.top a.l:hover { color: var(--accent); }
+
+/* hero */
+header.hero { padding-block: 72px 56px; display: grid; gap: 28px; }
+.eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 {
+  font-family: var(--display); font-weight: 800; font-stretch: 68%;
+  font-size: clamp(56px, 13vw, 148px); line-height: 0.86; letter-spacing: -0.02em;
+  margin: 0; text-wrap: balance;
+}
+h1 .soft { font-stretch: 125%; font-weight: 400; color: var(--accent); }
+.lede { font-size: clamp(18px, 2.2vw, 21px); max-width: 60ch; margin: 0; color: var(--ink); }
+.spec {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  border: 1px solid var(--rule); background: var(--sheet); max-width: 820px;
+}
+.spec div { padding: 12px 16px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: -0 -1px -1px 0; }
+.spec dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.spec dd { margin: 2px 0 0; font-weight: 500; }
+
+/* sections */
+section { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px 40px; padding-block: 56px; border-top: 1px solid var(--rule); }
+.side h2 { font-family: var(--display); font-weight: 700; font-stretch: 100%; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; margin: 0; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); }
+.side .count { font-family: var(--mono); font-size: 12px; color: var(--muted); display: block; margin-top: 4px; }
+@media (max-width: 720px) { section { grid-template-columns: minmax(0,1fr); padding-block: 40px; } .side h2 { position: static; } }
+
+/* project parts */
+.parts { display: grid; gap: 20px; }
+.part { background: var(--sheet); border: 1px solid var(--rule); display: grid; grid-template-columns: minmax(0, 1fr) 220px; }
+.part .body { padding: 24px 26px; min-width: 0; }
+.part h3 { font-family: var(--display); font-weight: 700; font-stretch: 92%; font-size: 26px; line-height: 1.1; margin: 0 0 10px; text-wrap: balance; }
+.part p { margin: 0 0 12px; max-width: 64ch; }
+.part ul { margin: 0; padding-left: 18px; }
+.part li { margin-bottom: 4px; }
+.tblock { border-left: 1px solid var(--rule); font-size: 13px; display: grid; align-content: start; }
+.tblock div { padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+.tblock div:last-child { border-bottom: 0; }
+.tblock dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.tblock dd { margin: 1px 0 0; font-weight: 500; }
+.pn { font-family: var(--mono); font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.s-done { color: var(--done); } .s-wip { color: var(--wip); } .s-plan { color: var(--plan); }
+@media (max-width: 720px) { .part { grid-template-columns: minmax(0,1fr); } .tblock { border-left: 0; border-top: 1px solid var(--rule); grid-template-columns: repeat(2, minmax(0,1fr)); } .tblock div:nth-child(odd) { border-right: 1px solid var(--rule); } .tblock div:last-child { border-bottom: 1px solid var(--rule); } }
+
+/* research timeline */
+.entries { display: grid; gap: 32px; }
+.entry { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 8px 24px; }
+.entry .when { font-family: var(--mono); font-size: 13px; color: var(--muted); padding-top: 4px; font-variant-numeric: tabular-nums; }
+.entry h3 { font-family: var(--display); font-stretch: 92%; font-weight: 700; font-size: 22px; margin: 0; line-height: 1.2; }
+.entry .org { color: var(--muted); margin: 2px 0 10px; }
+.entry ul { margin: 0; padding-left: 18px; max-width: 66ch; }
+.entry li { margin-bottom: 6px; }
+@media (max-width: 560px) { .entry { grid-template-columns: minmax(0,1fr); } }
+
+/* skills */
+.skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+.skills h3 { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin: 0 0 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 14px; padding: 4px 10px; background: var(--accent-soft); color: var(--ink); border-radius: 3px; }
+
+/* contact */
+.contact p { margin: 0 0 18px; max-width: 58ch; font-size: 18px; }
+.links { display: grid; gap: 0; border: 1px solid var(--rule); background: var(--sheet); max-width: 560px; }
+.links div { display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.links div:last-child { border-bottom: 0; }
+.links dt { font-family: var(--mono); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.links dd { margin: 0; overflow-wrap: anywhere; }
+footer { padding-block: 32px 48px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="top" aria-label="Main">
+    <a class="mark" href="#top">Chanwoo Kim</a>
+    <ul>
+      <li><a class="l" href="#projects">Projects</a></li>
+      <li><a class="l" href="#research">Research</a></li>
+      <li><a class="l" href="#coursework">Coursework</a></li>
+      <li><a class="l" href="#skills">Skills</a></li>
+      <li><a class="l" href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero" id="top">
+    <span class="eyebrow">Mechanical Engineering · Boston University</span>
+    <h1>Rigid bones,<br><span class="soft">soft joints.</span></h1>
+    <p class="lede">I build soft robotic actuators that combine 3D printed rigid structure with cast silicone and pneumatic chambers, aiming at robotics, prosthetics, and mechatronic systems that move more like bodies do.</p>
+    <dl class="spec">
+      <div><dt>Program</dt><dd>B.S. Mechanical Eng., Class of 2027</dd></div>
+      <div><dt>Lab</dt><dd>Frumkin Lab, BU</dd></div>
+      <div><dt>Prior research</dt><dd>KAIST Biomechanics Lab</dd></div>
+      <div><dt>Focus</dt><dd>Soft robotics, biomechanics</dd></div>
+    </dl>
+  </header>
+
+  <section id="projects">
+    <div class="side"><h2>Projects</h2><span class="count">04 parts</span></div>
+    <div class="parts">
+
+      <article class="part">
+        <div class="body">
+          <span class="pn">P-01</span>
+          <h3>Two-Joint Hybrid Soft Finger</h3>
+          <p>A finger actuator built like a skeleton: rigid 3D printed phalanges connected by soft Ecoflex joints formed with fluidic shaping. Pressurizing the joint chambers bends the finger while the rigid segments hold their shape.</p>
+          <ul>
+            <li>Designed rigid bone segments with pin hinge joints</li>
+            <li>Formed silicone joint shells by fluidic shaping</li>
+            <li>Investigated sealing the seam between rigid part and soft joint without adhesives</li>
+          </ul>
+        </div>
+        <dl class="tblock">
+          <div><dt>Status</dt><dd><span class="status s-done">Completed</span></dd></div>
+          <div><dt>Material</dt><dd>Ecoflex, PLA</dd></div>
+          <div><dt>Actuation</dt><dd>Pneumatic</dd></div>
+          <div><dt>Lab</dt><dd>Frumkin Lab, BU</dd></div>
+        </dl>
+      </article>
+
+      <article class="part">
+        <div class="body">
+          <span class="pn">P-02</span>
+          <h3>Variable Stiffness Gripper with Drop Stitch Fabric</h3>
+          <p>A gripper whose joints can switch between compliant and stiff. Drop stitch fabric, two face sheets tied by thousands of internal threads, becomes rigid when inflated and stays flexible when vented, so it is integrated at the joints as a tunable stiffness element.</p>
+          <ul>
+            <li>Sourced and evaluated PVC drop stitch samples (5 cm gap)</li>
+            <li>Developed an edge sealing method: PVC coated polyester strip bonded with vinyl cement</li>
+          </ul>
+        </div>
+        <dl class="tblock">
+          <div><dt>Status</dt><dd><span class="status s-wip">In development</span></dd></div>
+          <div><dt>Material</dt><dd>PVC drop stitch</dd></div>
+          <div><dt>Actuation</dt><dd>Pneumatic</dd></div>
+          <div><dt>Lab</dt><dd>Frumkin Lab, BU</dd></div>
+        </dl>
+      </article>
+
+      <article class="part">
+        <div class="body">
+          <span class="pn">P-03</span>
+          <h3>Three-Finger Silicone Soft Gripper</h3>
+          <p>A three-finger gripper cast from Ecoflex 00-30 in 3D printed molds and driven by a syringe pump, based on the open OptoLAB design from the University of Novi Sad.</p>
+          <ul>
+            <li>Mold design for multi-part silicone casting</li>
+            <li>Syringe pump actuation for controlled inflation</li>
+          </ul>
+        </div>
+        <dl class="tblock">
+          <div><dt>Status</dt><dd><span class="status s-plan">Planned</span></dd></div>
+          <div><dt>Material</dt><dd>Ecoflex 00-30</dd></div>
+          <div><dt>Actuation</dt><dd>Syringe pump</dd></div>
+          <div><dt>Fabrication</dt><dd>3D printed molds</dd></div>
+        </dl>
+      </article>
+
+      <article class="part">
+        <div class="body">
+          <span class="pn">P-04</span>
+          <h3>Data Center Waste Heat Recovery</h3>
+          <p>Senior Design capstone (ENGME 460). The team is designing a system that captures waste heat from a hyperscale data center through water to water heat exchange and uses it to warm a treatment chamber where a yeast and water mixture produces gas that is collected.</p>
+          <ul>
+            <li>Six person team, $600 budget</li>
+            <li>Heat exchanger and treatment chamber design</li>
+          </ul>
+        </div>
+        <dl class="tblock">
+          <div><dt>Status</dt><dd><span class="status s-wip">In progress</span></dd></div>
+          <div><dt>Course</dt><dd>Senior Design, Fall 2026</dd></div>
+          <div><dt>Advisor</dt><dd>Prof. McDaniel</dd></div>
+          <div><dt>Domain</dt><dd>Thermal systems</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="research">
+    <div class="side"><h2>Research</h2><span class="count">02 labs</span></div>
+    <div class="entries">
+      <div class="entry">
+        <span class="when">2026 to present</span>
+        <div>
+          <h3>Undergraduate Researcher</h3>
+          <p class="org">Frumkin Lab, Boston University</p>
+          <ul>
+            <li>Fabricated a two-joint hybrid fluidic soft actuator combining rigid 3D printed bones with fluidic shaped Ecoflex joints</li>
+            <li>Developing a variable stiffness gripper using drop stitch fabric at the joints</li>
+            <li>Presented a review of soft robotics sensing and actuation (fluidic, DEA, HASEL, SMA, magnetic) at a lab seminar</li>
+          </ul>
+        </div>
+      </div>
+      <div class="entry">
+        <span class="when">Jun to Aug 2025</span>
+        <div>
+          <h3>Undergraduate Research Assistant</h3>
+          <p class="org">Biomechanics Lab, KAIST (Prof. Soo-kyung Park)</p>
+          <ul>
+            <li>Designed and led a step response system identification experiment to characterize the response order and time constant of heat flux sensors used in human metabolic studies</li>
+            <li>Built a PID controlled Peltier cold plate rig (custom PCB, RTD feedback, LabVIEW) to test a fixed heat flux calibration method; identified a confounding variable and removed it from the final protocol</li>
+            <li>Supported the lab's main energy expenditure study (VO2 vs. motion capture and heat flux estimates) with sensor placement and motion capture post processing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="coursework">
+    <div class="side"><h2>Coursework</h2><span class="count">selected</span></div>
+    <div class="entries">
+      <div class="entry">
+        <span class="when">ME500 · Fall 2026</span>
+        <div>
+          <h3>Critical Fall Height for Leg Fracture</h3>
+          <p class="org">Applied Mathematical Modeling</p>
+          <ul>
+            <li>Modeled the knee as a spring damper two bar linkage and the tibia as an Euler buckling column to estimate the landing height that fractures the leg</li>
+            <li>Separate estimation study on stone skipping: minimum skip velocity versus impact angle via dimensional analysis and impulse momentum scaling</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="side"><h2>Skills</h2></div>
+    <div class="skills">
+      <div><h3>Design</h3><div class="chips"><span class="chip">SolidWorks</span><span class="chip">3D printing</span><span class="chip">Mold design</span></div></div>
+      <div><h3>Fabrication</h3><div class="chips"><span class="chip">Silicone casting</span><span class="chip">Fluidic shaping</span><span class="chip">PCB design</span></div></div>
+      <div><h3>Programming</h3><div class="chips"><span class="chip">MATLAB</span><span class="chip">Python</span><span class="chip">C/C++</span><span class="chip">Arduino</span></div></div>
+      <div><h3>Test &amp; Control</h3><div class="chips"><span class="chip">LabVIEW</span><span class="chip">PID control</span><span class="chip">System ID</span><span class="chip">Motion capture</span></div></div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="side"><h2>Contact</h2></div>
+    <div>
+      <p>Looking for graduate research opportunities in soft robotics, prosthetics, and mechatronics.</p>
+      <dl class="links">
+        <div><dt>Email</dt><dd>your.email@bu.edu</dd></div>
+        <div><dt>LinkedIn</dt><dd>linkedin.com/in/your-profile</dd></div>
+        <div><dt>Resume</dt><dd>resume.pdf</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <footer>© 2026 Chanwoo Kim · Boston, MA</footer>
+</div>
+</body>
+</html>

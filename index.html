@@ -202,6 +202,28 @@ nav.subs a:hover { color: var(--glow); }
 .foot { border-top: 1px solid var(--line); padding-block: 20px 32px; }
 .panel { position: fixed; top: 76px; bottom: 16px; box-shadow: 0 20px 60px rgba(27,42,51,.18); }
 @media (max-width: 760px) { .panel { top: auto; bottom: 0; } }
+
+/* full screen interactive hero */
+.hero-full { position: relative; height: calc(100vh - 58px); height: calc(100svh - 58px); min-height: 520px; background: #ffffff; border-bottom: 1px solid var(--line); }
+.stage.full { position: absolute; inset: 0; }
+.stage.full #scene { width: 100%; height: 100%; aspect-ratio: auto; }
+.overlay-title { position: absolute; top: 18px; left: max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 4px; pointer-events: none; max-width: 46ch; }
+.overlay-title strong { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 2.4vw, 32px); color: #111c22; line-height: 1.1; }
+.hint2 { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--dim); }
+.scroll-cue { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--glow); background: rgba(255,255,255,.85); padding: 6px 12px; border-radius: 20px; }
+.scroll-cue .chev { font-size: 16px; animation: bob 1.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .scroll-cue .chev { animation: none; } }
+.about { display: grid; }
+.about .intro { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px 48px; align-items: start; }
+.about .intro > .eyebrow, .about .intro > h1, .about .intro > .lede, .about .intro > .cta { grid-column: 1; }
+.about .intro > .quick { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
+@media (max-width: 860px) { .about .intro { grid-template-columns: minmax(0,1fr); } .about .intro > .quick { grid-column: 1; grid-row: auto; } }
+@media (max-aspect-ratio: 1/1) {
+  .hero-full { height: auto; min-height: 0; padding-top: 96px; padding-bottom: 56px; }
+  .stage.full { position: relative; }
+  .stage.full #scene { height: auto; aspect-ratio: 960 / 620; }
+}
 </style>
 </head>
 <body>
@@ -210,27 +232,12 @@ nav.subs a:hover { color: var(--glow); }
   <header class="top">
     <a class="brand" href="#top">Chanwoo Kim<span>ME · BU 2027</span></a>
     <nav class="subs" aria-label="Sections">
-      <a href="#work">Work</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a href="#contact">Contact</a>
+      <a href="#about">About</a><a href="#work">Work</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a href="#contact">Contact</a>
     </nav>
   </header>
 
-  <section class="hero" id="top">
-    <div class="intro">
-      <span class="eyebrow">Mechanical Engineering · Boston University · Class of 2027</span>
-      <h1>I build soft robots for the human body.</h1>
-      <p class="lede">Undergraduate researcher in the Frumkin Lab working on hybrid soft actuators: rigid 3D printed bones with compliant elastomer joints. I want to bring them into prosthetics, rehabilitation and medical devices. Former combat medic in the Republic of Korea Army.</p>
-      <div class="cta">
-        <a class="btn primary" href="#work">See my work</a>
-        <a class="btn" href="https://www.linkedin.com/in/ckim1210">LinkedIn</a>
-        <span class="btn ghost mono">ckim1210@bu.edu</span>
-      </div>
-      <dl class="quick">
-        <div><dt>Focus</dt><dd>Soft robotics · Prosthetics · Biomechanics</dd></div>
-        <div><dt>Lab</dt><dd>Frumkin Lab, BU · prev. KAIST Biomechanics</dd></div>
-        <div><dt>Standing</dt><dd>Dean's List · last 60 credit GPA 3.94</dd></div>
-      </dl>
-    </div>
-    <div class="stage">
+  <section class="hero-full" id="top">
+    <div class="stage full">
     <svg id="scene" viewBox="-60 0 960 620" preserveAspectRatio="xMidYMid meet" role="group" aria-label="A lab with a glass capsule holding a human figure with a glowing nervous system, and Chanwoo in a lab coat reading a note">
       <defs>
         <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f4f7f9"/></linearGradient>
@@ -425,7 +432,26 @@ nav.subs a:hover { color: var(--glow); }
         <g class="tag"><text x="800" y="104" text-anchor="middle">Chanwoo Kim</text><text x="800" y="117" text-anchor="middle" class="tag2">tap for profile</text></g>
       </g>
     </svg>
-      <span class="hint">Tap an electrode or the figure in the lab coat</span>
+    </div>
+    <div class="overlay-title"><span class="eyebrow">Chanwoo Kim · Mechanical Engineering</span><strong>Soft robots for the human body</strong><span class="hint2">Tap an electrode on the body, or tap me in the lab coat</span></div>
+    <a class="scroll-cue" href="#about"><span>Scroll</span><span class="chev" aria-hidden="true">↓</span></a>
+  </section>
+
+  <section class="sec about" id="about">
+    <div class="intro">
+      <span class="eyebrow">Mechanical Engineering · Boston University · Class of 2027</span>
+      <h1>I build soft robots for the human body.</h1>
+      <p class="lede">Undergraduate researcher in the Frumkin Lab working on hybrid soft actuators: rigid 3D printed bones with compliant elastomer joints. I want to bring them into prosthetics, rehabilitation and medical devices. Former combat medic in the Republic of Korea Army.</p>
+      <div class="cta">
+        <a class="btn primary" href="#work">See my work</a>
+        <a class="btn" href="https://www.linkedin.com/in/ckim1210">LinkedIn</a>
+        <span class="btn ghost mono">ckim1210@bu.edu</span>
+      </div>
+      <dl class="quick">
+        <div><dt>Focus</dt><dd>Soft robotics · Prosthetics · Biomechanics</dd></div>
+        <div><dt>Lab</dt><dd>Frumkin Lab, BU · prev. KAIST Biomechanics</dd></div>
+        <div><dt>Standing</dt><dd>Dean's List · last 60 credit GPA 3.94</dd></div>
+      </dl>
     </div>
   </section>
 

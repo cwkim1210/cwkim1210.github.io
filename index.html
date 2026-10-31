@@ -27,7 +27,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--black); color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.55; overflow: hidden; }
+body { margin: 0; background: #041520; color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.55; overflow: hidden; }
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
 a { color: var(--glow); text-underline-offset: 3px; }
@@ -50,20 +50,23 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   padding-block: 12px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); border-top: 1px solid var(--line); }
 
 /* svg pieces */
-.glowline { filter: drop-shadow(0 0 4px var(--glow)) drop-shadow(0 0 10px rgba(95,227,255,.35)); }
+.glow-soft { filter: drop-shadow(0 0 3px rgba(143,240,255,.9)) drop-shadow(0 0 10px rgba(95,227,255,.45)); }
+.lamp rect { filter: drop-shadow(0 0 8px #bff6ff) drop-shadow(0 0 22px #5fe3ff); }
 .hit { cursor: pointer; }
-.node .ring { fill: none; stroke: var(--glow); stroke-width: 1; transform-box: fill-box; transform-origin: center; animation: ping 2.6s ease-out infinite; }
-.node .dot { fill: var(--glow); }
-.node .core { fill: #000; stroke: var(--glow); stroke-width: 1.5; }
-.node text, .tag text { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; fill: var(--dim); text-transform: uppercase; }
-.node:hover .core, .node.active .core { fill: var(--glow); }
-.node:hover text, .node.active text, .me:hover .tag text, .me.active .tag text { fill: var(--glow); }
+.node .ring { fill: none; stroke: #bff6ff; stroke-width: 1; transform-box: fill-box; transform-origin: center; animation: ping 2.6s ease-out infinite; }
+.node .dot { fill: #e8fdff; }
+.node .core { fill: #04222e; stroke: #bff6ff; stroke-width: 1.5; filter: drop-shadow(0 0 4px #5fe3ff); }
+.node text, .tag text { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; fill: #bfe9f3; text-transform: uppercase; paint-order: stroke; stroke: #041520; stroke-width: 4px; stroke-linejoin: round; }
+.node text.sub, .tag text.tag2 { font-size: 8.5px; fill: #6f9fb0; letter-spacing: .18em; }
+.node:hover .core, .node.active .core { fill: #bff6ff; }
+.node:hover text, .node.active text, .me:hover .tag text, .me.active .tag text { fill: #ffffff; }
 .node.heart .dot { transform-box: fill-box; transform-origin: center; animation: beat 1s ease-in-out infinite; }
 .node:focus, .me:focus { outline: none; }
 .node:focus-visible .core { stroke-width: 3; }
-.me:hover .body, .me.active .body, .me:focus-visible .body { filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 18px rgba(95,227,255,.6)); }
+.me .body { filter: drop-shadow(0 0 3px rgba(143,240,255,.8)) drop-shadow(0 0 10px rgba(95,227,255,.35)); transition: filter .2s; }
+.me:hover .body, .me.active .body, .me:focus-visible .body { filter: drop-shadow(0 0 5px #bff6ff) drop-shadow(0 0 20px rgba(95,227,255,.75)); }
 .scanring { animation: scan 6s ease-in-out infinite alternate; }
-@keyframes scan { from { transform: translateY(0); } to { transform: translateY(410px); } }
+@keyframes scan { from { transform: translateY(0); } to { transform: translateY(430px); } }
 @keyframes ping { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
 @keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.6); } 30% { transform: scale(1.1); } 45% { transform: scale(1.4); } }
 @media (prefers-reduced-motion: reduce) { .node .ring, .node.heart .dot, .scanring { animation: none; } }
@@ -133,99 +136,174 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   </header>
 
   <main class="stage">
-    <svg id="scene" viewBox="20 26 840 584" preserveAspectRatio="xMidYMid meet" role="group" aria-label="A capsule holding a robotic body with glowing nerves, and Chanwoo in a lab coat holding a note">
+    <svg id="scene" viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet" role="group" aria-label="A lab with a glass capsule holding a human figure with a glowing nervous system, and Chanwoo in a lab coat reading a note">
       <defs>
-        <linearGradient id="glass" x1="0" x2="1">
-          <stop offset="0" stop-color="#5fe3ff" stop-opacity=".10"/>
-          <stop offset=".12" stop-color="#5fe3ff" stop-opacity=".02"/>
-          <stop offset=".78" stop-color="#5fe3ff" stop-opacity=".0"/>
-          <stop offset=".9" stop-color="#5fe3ff" stop-opacity=".07"/>
-          <stop offset="1" stop-color="#5fe3ff" stop-opacity=".12"/>
+        <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#06202c"/><stop offset=".75" stop-color="#041520"/><stop offset="1" stop-color="#03101a"/>
         </linearGradient>
-        <filter id="dilate" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="1.6"/></filter>
-        <radialGradient id="floor"><stop offset="0" stop-color="#5fe3ff" stop-opacity=".35"/><stop offset="1" stop-color="#5fe3ff" stop-opacity="0"/></radialGradient>
-        <clipPath id="tankClip"><path d="M140 100 V552 A130 22 0 0 0 400 552 V100 A130 22 0 0 0 140 100 Z"/></clipPath>
-
-        <!-- capsule body geometry -->
-        <g id="android">
-          <ellipse cx="270" cy="150" rx="25" ry="31"/>
-          <rect x="259" y="172" width="22" height="34" rx="8"/>
-          <path d="M226 202 Q270 190 314 202 Q324 214 320 246 Q308 296 302 336 L306 372 H234 L238 336 Q232 296 220 246 Q216 214 226 202 Z"/>
-          <polyline points="228,212 204,296 192,376" fill="none" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="312,212 336,296 348,376" fill="none" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="252,362 248,450 246,528" fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="288,362 292,450 294,528" fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-
-        <!-- me in a lab coat -->
-        <g id="me">
-          <circle cx="720" cy="214" r="25"/>
-          <rect x="710" y="234" width="20" height="22" rx="6"/>
-          <polyline points="704,474 702,560" fill="none" stroke-width="20" stroke-linecap="round"/>
-          <polyline points="736,474 738,560" fill="none" stroke-width="20" stroke-linecap="round"/>
-          <path d="M688 256 Q720 246 752 256 L760 300 L774 486 Q720 498 666 486 L680 300 Z"/>
-          <polyline points="752,266 768,352 762,420" fill="none" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="690,266 660,330 626,322" fill="none" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
+        <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#062431"/><stop offset="1" stop-color="#020a10"/>
+        </linearGradient>
+        <radialGradient id="aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5fe3ff" stop-opacity=".28"/><stop offset=".6" stop-color="#5fe3ff" stop-opacity=".06"/><stop offset="1" stop-color="#5fe3ff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff6ff" stop-opacity=".16"/><stop offset="1" stop-color="#bff6ff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="glass" x1="0" x2="1">
+          <stop offset="0" stop-color="#8ff0ff" stop-opacity=".16"/><stop offset=".1" stop-color="#8ff0ff" stop-opacity=".03"/>
+          <stop offset=".8" stop-color="#8ff0ff" stop-opacity=".0"/><stop offset=".92" stop-color="#8ff0ff" stop-opacity=".1"/><stop offset="1" stop-color="#8ff0ff" stop-opacity=".18"/>
+        </linearGradient>
+        <clipPath id="tankClip"><rect x="132" y="96" width="276" height="456"/></clipPath>
       </defs>
 
-      <!-- floor glow -->
-      <ellipse cx="270" cy="560" rx="200" ry="30" fill="url(#floor)"/>
-      <ellipse cx="720" cy="566" rx="90" ry="14" fill="url(#floor)" opacity=".6"/>
-
-      <!-- capsule: back half -->
-      <path d="M140 552 A130 22 0 0 1 400 552" fill="none" stroke="#5fe3ff" stroke-opacity=".25"/>
-      <path d="M140 100 A130 22 0 0 1 400 100" fill="none" stroke="#5fe3ff" stroke-opacity=".35"/>
-      <rect x="140" y="100" width="260" height="452" fill="url(#glass)"/>
-
-      <!-- android: outline by union trick -->
-      <g class="glowline">
-        <use href="#android" fill="#5fe3ff" stroke="#5fe3ff" filter="url(#dilate)"/>
+      <!-- ===== LAB ===== -->
+      <rect x="0" y="0" width="900" height="470" fill="url(#wall)"/>
+      <rect x="0" y="470" width="900" height="150" fill="url(#floorG)"/>
+      <g id="floorLines" stroke="#5fe3ff" stroke-opacity=".09"></g>
+      <line x1="0" y1="470" x2="900" y2="470" stroke="#5fe3ff" stroke-opacity=".35"/>
+      <!-- wall panels -->
+      <g stroke="#5fe3ff" stroke-opacity=".07"><line x1="110" y1="40" x2="110" y2="470"/><line x1="440" y1="40" x2="440" y2="470"/><line x1="660" y1="40" x2="660" y2="470"/><line x1="0" y1="40" x2="900" y2="40"/><line x1="0" y1="250" x2="900" y2="250"/></g>
+      <!-- ceiling lights -->
+      <g class="lamp"><rect x="150" y="12" width="240" height="6" rx="3" fill="#dffbff"/><path d="M150 18 H390 L460 470 H80 Z" fill="url(#cone)"/></g>
+      <g class="lamp"><rect x="600" y="12" width="220" height="6" rx="3" fill="#dffbff"/><path d="M600 18 H820 L880 470 H540 Z" fill="url(#cone)" opacity=".7"/></g>
+      <!-- wall display: step response -->
+      <g transform="translate(468,78)">
+        <rect width="170" height="100" rx="3" fill="#031822" stroke="#5fe3ff" stroke-opacity=".55"/>
+        <g stroke="#5fe3ff" stroke-opacity=".12"><line x1="12" y1="80" x2="160" y2="80"/><line x1="12" y1="56" x2="160" y2="56"/><line x1="12" y1="32" x2="160" y2="32"/><line x1="12" y1="14" x2="12" y2="80"/></g>
+        <path d="M14 78 H46 C56 78 58 26 80 22 S120 20 158 20" fill="none" stroke="#8ff0ff" stroke-width="1.6"/>
+        <path d="M14 78 H46 C66 78 76 46 100 36 S140 28 158 27" fill="none" stroke="#8ff0ff" stroke-opacity=".45" stroke-dasharray="3 3"/>
+        <text x="12" y="10" font-family="JetBrains Mono, monospace" font-size="7" letter-spacing="1" fill="#6f9fb0">HFS STEP RESPONSE · τ</text>
+        <text x="158" y="94" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="7" fill="#6f9fb0">t [s]</text>
       </g>
-      <use href="#android" fill="#000" stroke="#000"/>
-      <g id="nerves" stroke="#5fe3ff" stroke-opacity=".5" stroke-width="1" fill="none"></g>
-      <g id="pulses" fill="#5fe3ff"></g>
+      <!-- shelves -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".32" stroke-width="1">
+        <line x1="450" y1="232" x2="640" y2="232"/><line x1="450" y1="300" x2="640" y2="300"/>
+        <line x1="456" y1="300" x2="456" y2="306"/><line x1="634" y1="300" x2="634" y2="306"/>
+        <path d="M462 232 V206 H476 V232 M468 206 V200"/>
+        <path d="M486 232 L490 214 V204 H498 V214 L502 232 Z"/>
+        <rect x="514" y="210" width="26" height="22" rx="2"/><line x1="514" y1="218" x2="540" y2="218"/>
+        <path d="M552 232 V196 Q552 190 558 190 H566 Q572 190 572 196 V232"/>
+        <path d="M584 232 l6 -14 v-10 h6 v10 l6 14 z"/><path d="M612 232 V214 H632 V232 M616 214 V208 H628 V214"/>
+        <rect x="462" y="276" width="40" height="24" rx="2"/><rect x="510" y="282" width="18" height="18" rx="9"/>
+        <path d="M542 300 V268 H556 V300 M546 268 V262"/><rect x="570" y="270" width="58" height="30" rx="2"/><line x1="576" y1="280" x2="622" y2="280"/>
+      </g>
+      <!-- lab bench -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".38" stroke-width="1.1">
+        <path d="M600 398 H900 M600 398 V404 H900"/>
+        <line x1="612" y1="404" x2="612" y2="470"/><line x1="886" y1="404" x2="886" y2="470"/>
+        <rect x="628" y="410" width="80" height="44"/><line x1="628" y1="432" x2="708" y2="432"/><line x1="664" y1="420" x2="672" y2="420"/><line x1="664" y1="442" x2="672" y2="442"/>
+        <!-- monitor with ECG -->
+        <rect x="806" y="318" width="84" height="56" rx="3" fill="#031822"/><path d="M842 374 V390 M828 398 L834 390 H850 L856 398"/>
+        <path d="M812 350 H828 L832 342 L836 350 H842 L846 328 L851 362 L855 350 H884" stroke="#8ff0ff" stroke-opacity=".9"/>
+        <!-- microscope -->
+        <path d="M640 398 H676 M652 398 V388 M650 388 H664 M656 388 L672 352 M668 360 L684 352 L676 338 L664 344 Z M672 352 L680 368 H690"/>
+        <!-- flasks -->
+        <path d="M696 398 L706 374 V362 H714 V374 L724 398 Z"/><line x1="701" y1="388" x2="719" y2="388" stroke-opacity=".6"/>
+        <path d="M734 398 V368 H744 V398"/><path d="M752 398 V356 H760 V398"/>
+        <!-- robot arm -->
+        <path d="M770 398 H800 M778 398 V390 H792 V398 M785 390 L776 360 L798 340 L806 346 M776 360 m-4 0 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0 M798 340 m-3 0 a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0"/>
+      </g>
+      <!-- left wall rack -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".25">
+        <rect x="18" y="230" width="70" height="240"/><line x1="18" y1="290" x2="88" y2="290"/><line x1="18" y1="350" x2="88" y2="350"/><line x1="18" y1="410" x2="88" y2="410"/>
+        <g stroke-opacity=".6"><line x1="28" y1="250" x2="40" y2="250"/><line x1="28" y1="310" x2="44" y2="310"/><line x1="28" y1="370" x2="36" y2="370"/></g>
+        <g fill="#8ff0ff" stroke="none" opacity=".8"><circle cx="78" cy="250" r="2"/><circle cx="78" cy="310" r="2"/><circle cx="70" cy="310" r="2"/><circle cx="78" cy="370" r="2"/></g>
+      </g>
 
-      <!-- capsule: front half -->
-      <g clip-path="url(#tankClip)"><ellipse class="scanring" cx="270" cy="120" rx="130" ry="22" fill="none" stroke="#5fe3ff" stroke-opacity=".35"/></g>
-      <g fill="none" stroke="#5fe3ff" class="glowline">
-        <line x1="140" y1="100" x2="140" y2="552" stroke-opacity=".7"/>
-        <line x1="400" y1="100" x2="400" y2="552" stroke-opacity=".7"/>
-        <path d="M140 100 A130 22 0 0 0 400 100" stroke-opacity=".8"/>
-        <path d="M140 552 A130 22 0 0 0 400 552" stroke-opacity=".8"/>
+      <!-- ===== CAPSULE (back) ===== -->
+      <ellipse cx="270" cy="560" rx="230" ry="44" fill="url(#aura)"/>
+      <ellipse cx="270" cy="320" rx="190" ry="250" fill="url(#aura)" opacity=".7"/>
+      <g fill="none" stroke="#8ff0ff">
+        <path d="M132 96 A138 20 0 0 1 408 96" stroke-opacity=".35"/>
+        <path d="M132 552 A138 20 0 0 1 408 552" stroke-opacity=".3"/>
+        <line x1="190" y1="80" x2="190" y2="536" stroke-opacity=".22" stroke-width="3"/>
+        <line x1="350" y1="80" x2="350" y2="536" stroke-opacity=".22" stroke-width="3"/>
       </g>
-      <path d="M128 92 A142 26 0 0 1 412 92 V80 A142 26 0 0 0 128 80 Z" fill="#000" stroke="#5fe3ff" stroke-opacity=".6"/>
-      <path d="M128 560 A142 26 0 0 0 412 560 V578 A142 26 0 0 1 128 578 Z" fill="#000" stroke="#5fe3ff" stroke-opacity=".6"/>
-      <line x1="160" y1="130" x2="160" y2="520" stroke="#5fe3ff" stroke-opacity=".12" stroke-width="5"/>
-      <g font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="2" fill="#6f8f9c">
-        <text x="270" y="40" text-anchor="middle">UNIT CK-01 · SOFT BIOMECHANICAL</text>
+      <rect x="132" y="96" width="276" height="456" fill="url(#glass)"/>
+      <!-- platform disc inside -->
+      <ellipse cx="270" cy="546" rx="110" ry="14" fill="#06303e" stroke="#8ff0ff" stroke-opacity=".6"/>
+      <ellipse cx="270" cy="546" rx="80" ry="9" fill="none" stroke="#8ff0ff" stroke-opacity=".35"/>
+
+      <!-- ===== HUMAN FIGURE ===== -->
+      <g class="glow-soft">
+        <path id="bodyOutline" fill="#04222e" fill-opacity=".85" stroke="#b8f6ff" stroke-width="1.5" stroke-linejoin="round"/>
       </g>
+      <g id="anatomy" fill="none" stroke="#b8f6ff" stroke-opacity=".35" stroke-width=".9" stroke-linecap="round"></g>
+      <g id="nerves" fill="none" stroke="#8ff0ff" stroke-linecap="round" class="glow-soft"></g>
+      <g id="pulses" fill="#e8fdff"></g>
+
+      <!-- ===== CAPSULE (front) ===== -->
+      <g clip-path="url(#tankClip)"><ellipse class="scanring" cx="270" cy="110" rx="138" ry="20" fill="none" stroke="#8ff0ff" stroke-opacity=".45"/></g>
+      <g fill="none" stroke="#bff6ff" class="glow-soft">
+        <path d="M132 96 A138 20 0 0 0 408 96" stroke-opacity=".85"/>
+        <path d="M132 552 A138 20 0 0 0 408 552" stroke-opacity=".7"/>
+      </g>
+      <!-- front posts -->
+      <g fill="#05222e" stroke="#bff6ff" stroke-width="1.2" class="glow-soft">
+        <rect x="126" y="86" width="10" height="474"/><rect x="404" y="86" width="10" height="474"/>
+      </g>
+      <g fill="#05222e" stroke="#8ff0ff" stroke-width="1">
+        <rect x="114" y="168" width="14" height="30" rx="2"/><rect x="114" y="300" width="14" height="22" rx="2"/><rect x="114" y="430" width="14" height="30" rx="2"/>
+        <rect x="412" y="168" width="14" height="30" rx="2"/><rect x="412" y="300" width="14" height="22" rx="2"/><rect x="412" y="430" width="14" height="30" rx="2"/>
+      </g>
+      <g fill="#8ff0ff"><circle cx="121" cy="176" r="1.6"/><circle cx="121" cy="438" r="1.6"/><circle cx="419" cy="176" r="1.6"/><circle cx="419" cy="438" r="1.6"/></g>
+      <line x1="150" y1="120" x2="150" y2="530" stroke="#dffbff" stroke-opacity=".14" stroke-width="6"/>
+      <line x1="162" y1="140" x2="162" y2="500" stroke="#dffbff" stroke-opacity=".08" stroke-width="2"/>
+      <!-- top cap -->
+      <path d="M118 88 A152 26 0 0 1 422 88 V72 A152 26 0 0 0 118 72 Z" fill="#05222e" stroke="#bff6ff" stroke-opacity=".8" class="glow-soft"/>
+      <path d="M118 72 A152 26 0 0 1 422 72" fill="none" stroke="#bff6ff" stroke-opacity=".5"/>
+      <g fill="#8ff0ff"><circle cx="150" cy="93" r="1.8"/><circle cx="200" cy="100" r="1.8"/><circle cx="270" cy="103" r="1.8"/><circle cx="340" cy="100" r="1.8"/><circle cx="390" cy="93" r="1.8"/></g>
+      <g fill="none" stroke="#8ff0ff" stroke-opacity=".55" stroke-width="2">
+        <path d="M222 50 C222 30 214 16 210 0"/><path d="M236 48 C236 24 240 12 238 0"/><path d="M300 48 C300 26 312 12 318 0"/><path d="M316 52 C318 30 330 14 340 0"/>
+      </g>
+      <rect x="214" y="42" width="112" height="12" rx="3" fill="#05222e" stroke="#bff6ff" stroke-opacity=".6"/>
+      <!-- base -->
+      <path d="M110 556 A160 28 0 0 0 430 556 V576 A160 28 0 0 1 110 576 Z" fill="#05222e" stroke="#bff6ff" stroke-opacity=".8" class="glow-soft"/>
+      <path d="M110 556 A160 28 0 0 1 430 556" fill="none" stroke="#bff6ff" stroke-opacity=".45"/>
+      <g fill="#8ff0ff" class="glow-soft"><rect x="196" y="590" width="20" height="2"/><rect x="232" y="592" width="20" height="2"/><rect x="288" y="592" width="20" height="2"/><rect x="324" y="590" width="20" height="2"/></g>
+      <g id="cables" fill="none" stroke="#8ff0ff" stroke-opacity=".7" stroke-width="1.3"></g>
+      <text x="270" y="30" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="2" fill="#7fb3c4" style="display:none">UNIT CK-01</text>
 
       <g id="nodes"></g>
 
-      <!-- me -->
+      <!-- ===== ME (back view, reading a note) ===== -->
       <g class="me hit" id="meBtn" tabindex="0" role="button" aria-label="Chanwoo Kim, open my info">
-        <rect x="560" y="170" width="230" height="400" fill="transparent"/>
-        <g class="body">
-          <g class="glowline"><use href="#me" fill="#5fe3ff" stroke="#5fe3ff" filter="url(#dilate)"/></g>
-          <use href="#me" fill="#000" stroke="#000"/>
-          <!-- coat details -->
-          <g fill="none" stroke="#5fe3ff" stroke-opacity=".6" stroke-width="1.2">
-            <path d="M708 256 L720 292 L732 256"/>
-            <line x1="720" y1="292" x2="716" y2="488"/>
-            <line x1="742" y1="380" x2="758" y2="380"/>
-            <circle cx="722" cy="318" r="1.6"/><circle cx="721" cy="360" r="1.6"/><circle cx="720" cy="402" r="1.6"/>
+        <rect x="660" y="140" width="180" height="430" fill="transparent"/>
+        <ellipse cx="762" cy="566" rx="70" ry="8" fill="#000" opacity=".5"/>
+        <g class="body" fill="#04222e" stroke="#b8f6ff" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+          <!-- clipboard peeking left -->
+          <g transform="rotate(-14 700 262)">
+            <rect x="672" y="236" width="42" height="56" rx="2"/>
+            <rect x="684" y="232" width="18" height="7" rx="2"/>
+            <g stroke-opacity=".5" stroke-width="1"><line x1="678" y1="250" x2="700" y2="250"/><line x1="678" y1="260" x2="704" y2="260"/><line x1="678" y1="270" x2="696" y2="270"/></g>
           </g>
-          <!-- note -->
-          <g transform="rotate(-8 600 310)">
-            <rect x="572" y="276" width="56" height="74" fill="#000" stroke="#5fe3ff" stroke-width="1.6" class="glowline"/>
-            <g stroke="#5fe3ff" stroke-opacity=".55"><line x1="580" y1="292" x2="618" y2="292"/><line x1="580" y1="304" x2="614" y2="304"/><line x1="580" y1="316" x2="620" y2="316"/><line x1="580" y1="328" x2="606" y2="328"/></g>
+          <!-- legs and shoes -->
+          <path d="M734 432 L732 532 Q731 540 738 540 H752 Q758 540 757 532 L760 440"/>
+          <path d="M770 440 L773 532 Q773 540 780 540 H794 Q800 540 799 532 L792 432"/>
+          <path d="M728 540 Q726 556 740 558 H758 Q764 556 760 540 Z"/>
+          <path d="M770 540 Q766 556 774 558 H794 Q806 556 802 540 Z"/>
+          <g stroke-opacity=".4" stroke-width="1"><line x1="746" y1="450" x2="745" y2="530"/><line x1="784" y1="450" x2="786" y2="530"/></g>
+          <!-- coat -->
+          <path d="M744 212 Q762 220 780 212 L800 220 Q818 226 822 246 L828 300 Q832 322 822 334 L812 338 L818 444 Q764 454 708 444 L714 338 L704 334 Q694 322 698 300 L704 246 Q708 226 726 220 Z"/>
+          <g fill="none" stroke-opacity=".6" stroke-width="1.1">
+            <path d="M744 212 Q762 232 780 212"/>
+            <path d="M738 220 Q762 238 786 220"/>
+            <line x1="762" y1="236" x2="763" y2="400"/>
+            <path d="M763 400 L763 448 M763 400 L770 446"/>
+            <rect x="740" y="326" width="46" height="10" rx="2"/>
+            <circle cx="745" cy="331" r="1.8"/><circle cx="781" cy="331" r="1.8"/>
+            <path d="M714 338 Q728 334 736 326 M812 338 Q798 334 788 326"/>
+            <path d="M704 260 Q712 290 708 318 M822 262 Q814 290 818 318"/>
+            <path d="M726 222 Q738 270 730 330 M800 222 Q788 270 796 330" stroke-opacity=".3"/>
           </g>
+          <!-- neck and head, bowed toward the note -->
+          <path d="M752 196 L751 214 Q762 220 773 214 L772 196 Z"/>
+          <ellipse cx="762" cy="180" rx="22" ry="25"/>
+          <path d="M741 184 Q737 188 740 194 M783 184 Q787 188 784 194" fill="none"/>
+          <path d="M741 186 Q736 160 750 152 Q762 146 776 152 Q790 160 783 186 Q782 196 774 200 Q768 197 762 199 Q756 197 750 200 Q742 196 741 186 Z" fill="#082e3c"/>
+          <g fill="none" stroke-opacity=".45" stroke-width="1"><path d="M752 156 Q750 174 754 194 M762 152 Q760 174 762 196 M772 156 Q774 174 770 194 M745 168 Q746 182 748 194 M779 168 Q778 182 776 194"/></g>
         </g>
-        <g class="tag"><text x="720" y="166" text-anchor="middle">Chanwoo Kim · Engineer</text></g>
+        <g class="tag"><text x="762" y="128" text-anchor="middle">Chanwoo Kim</text><text x="762" y="141" text-anchor="middle" class="tag2">tap for profile</text></g>
       </g>
     </svg>
-    <span class="hint">Tap a nerve node · Tap me for my info</span>
+    <span class="hint">Tap an electrode node · Tap me for my profile</span>
   </main>
 
   <footer class="foot"><span>ckim1210@bu.edu</span><span>© 2026 Chanwoo Kim · Boston, MA</span></footer>
@@ -243,58 +321,122 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   const mk = (tag, a, p) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // nerve network inside the android
-  const P = {
-    brain: [270,146], neck: [270,190], chest: [270,222], heart: [258,240], lung: [286,262], core: [270,312], pelvis: [270,352],
-    shL: [232,214], elL: [205,296], eye: [192,372], shR: [308,214], elR: [335,296], hand: [348,372],
-    hipL: [254,362], knL: [249,450], ftL: [246,522], hipR: [286,362], knee: [292,450], ftR: [294,522]
-  };
-  const E = [['brain','neck'],['neck','chest'],['chest','heart'],['chest','lung'],['heart','core'],['lung','core'],['core','pelvis'],
-    ['chest','shL'],['shL','elL'],['elL','eye'],['chest','shR'],['shR','elR'],['elR','hand'],
-    ['pelvis','hipL'],['hipL','knL'],['knL','ftL'],['pelvis','hipR'],['hipR','knee'],['knee','ftR'],['heart','lung'],['neck','shL'],['neck','shR']];
-  const nerves = $('nerves');
-  E.forEach(([a,b]) => {
-    const A = P[a], B = P[b], mx = (A[0]+B[0])/2 + (A[1]-B[1])*0.08, my = (A[1]+B[1])/2 + (B[0]-A[0])*0.08;
-    mk('path', { d: `M${A[0]} ${A[1]} Q${mx} ${my} ${B[0]} ${B[1]}` }, nerves);
-  });
-  [[258,136],[282,136],[262,160],[280,160],[270,130]].forEach(p => mk('line', { x1: p[0], y1: p[1], x2: 270, y2: 146 }, nerves));
+  // ===== floor perspective =====
+  const fl = $('floorLines');
+  for (let i = -10; i <= 20; i++) mk('line', { x1: 450 + i * 18, y1: 470, x2: 450 + i * 90, y2: 620 }, fl);
+  [482, 498, 520, 550, 590].forEach(y => mk('line', { x1: 0, y1: y, x2: 900, y2: y }, fl));
 
+  // ===== human outline (right half, mirrored) =====
+  const CX = 270;
+  const R = [[0,108],[15,110],[24,119],[27,134],[26,150],[22,164],[16,174],[11,180],[11,192],[22,198],[40,203],[54,210],[60,224],[62,244],[63,262],[65,282],[68,300],[72,322],[75,344],[78,358],[84,368],[87,382],[84,396],[78,402],[72,398],[67,388],[63,372],[59,354],[54,330],[50,306],[47,286],[45,262],[42,244],[40,262],[40,282],[36,306],[35,322],[40,344],[44,366],[45,388],[42,414],[37,440],[34,458],[35,476],[33,500],[28,520],[27,532],[33,542],[30,548],[16,548],[10,542],[11,526],[14,504],[16,478],[15,458],[13,436],[10,410],[5,390],[0,386]];
+  const pts = R.map(([dx, y]) => [CX + dx, y]).concat(R.slice(1, -1).reverse().map(([dx, y]) => [CX - dx, y]));
+  function smoothClosed(p) {
+    const n = p.length; let d = `M${p[0][0]} ${p[0][1]}`;
+    for (let i = 0; i < n; i++) {
+      const p0 = p[(i - 1 + n) % n], p1 = p[i], p2 = p[(i + 1) % n], p3 = p[(i + 2) % n];
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0]} ${p2[1]}`;
+    }
+    return d + ' Z';
+  }
+  $('bodyOutline').setAttribute('d', smoothClosed(pts));
+
+  // anatomy detail lines (mirrored)
+  const an = $('anatomy');
+  const both = d => { mk('path', { d }, an); mk('path', { d, transform: `translate(${2 * CX},0) scale(-1,1)` }, an); };
+  both('M262 200 Q246 206 230 210');                      // clavicle
+  both('M266 222 Q250 246 230 236');                      // pectoral
+  both('M226 214 Q220 236 222 256');                      // deltoid
+  both('M262 292 Q258 304 262 312 M262 318 Q258 330 262 338'); // abs
+  both('M236 330 Q244 360 262 384');                      // inguinal
+  both('M262 452 Q257 456 262 462');                      // knee cap
+  both('M236 410 Q240 440 246 452');                      // thigh
+  both('M238 476 Q236 500 244 520');                      // calf
+  both('M208 300 Q206 316 210 330');                      // forearm
+  both('M190 384 L188 400 M194 386 L194 402 M199 386 L200 401 M203 384 L205 397'); // fingers
+  mk('line', { x1: CX, y1: 268, x2: CX, y2: 340 }, an);   // linea alba
+  mk('circle', { cx: CX, cy: 350, r: 1.5 }, an);           // navel
+
+  // ===== nervous system =====
+  const nerves = $('nerves');
+  const path = (d, w, o) => mk('path', { d, 'stroke-width': w, 'stroke-opacity': o }, nerves);
+  // brain
+  path('M252 128 Q250 112 264 108 Q276 104 286 112 Q292 120 288 132 Q284 140 270 140 Q256 140 252 128 Z', 1.1, .9);
+  path('M258 118 Q264 114 268 120 Q272 112 280 118 M256 128 Q262 124 266 130 Q272 124 278 130 Q282 126 286 128 M270 108 Q268 120 270 140', .8, .6);
+  path('M262 140 Q270 148 278 140', .9, .7);
+  // spine with vertebra ticks
+  path('M270 140 L270 380', 1.6, .95);
+  for (let y = 196; y <= 372; y += 8) mk('line', { x1: CX - 3, y1: y, x2: CX + 3, y2: y, 'stroke-width': .8, 'stroke-opacity': .55 }, nerves);
+  // intercostal nerves
+  for (let y = 222; y <= 330; y += 14) {
+    const w = y < 300 ? 34 : 30;
+    path(`M270 ${y} Q${270 + w * .6} ${y - 2} ${270 + w} ${y + 10}`, .7, .45);
+    path(`M270 ${y} Q${270 - w * .6} ${y - 2} ${270 - w} ${y + 10}`, .7, .45);
+  }
+  // limb routes (right side, mirrored for left)
+  const armR = [[270,206],[300,210],[318,226],[322,262],[328,300],[334,334],[340,362],[342,386]];
+  const legR = [[270,378],[284,388],[292,420],[294,452],[292,486],[290,520],[293,540]];
+  const mirror = r => r.map(([x, y]) => [2 * CX - x, y]);
+  const routes = [[[270,140],[270,380]], armR, mirror(armR), legR, mirror(legR)];
+  const pl = r => 'M' + r.map(p => p.join(' ')).join(' L');
+  function twigs(route, side0) {
+    let side = side0;
+    for (let i = 1; i < route.length - 1; i++) {
+      const [x0, y0] = route[i - 1], [x1, y1] = route[i];
+      for (let t = .3; t < 1; t += .35) {
+        const x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+        const nx = -dy / L * side, ny = dx / L * side, len = 7 + Math.random() * 6;
+        path(`M${x.toFixed(1)} ${y.toFixed(1)} q${(nx * len * .6 + dx / L * len * .5).toFixed(1)} ${(ny * len * .6 + dy / L * len * .5).toFixed(1)} ${(nx * len + dx / L * len * .7).toFixed(1)} ${(ny * len + dy / L * len * .7).toFixed(1)}`, .6, .4);
+        side = -side;
+      }
+    }
+  }
+  [armR, mirror(armR), legR, mirror(legR)].forEach((r, i) => { path(pl(r), 1.2, .85); twigs(r, i % 2 ? -1 : 1); });
+  // finger nerves
+  [[342,386],[198,386]].forEach(([x, y]) => { const s = x > CX ? 1 : -1; [-6,-2,2,6].forEach(o => path(`M${x} ${y} l${s * (o * .2 + 1)} ${12 + Math.abs(o) * -.3} l${s * o * .4} 4`, .6, .5)); });
+  // intercostal routes for pulses
+  for (let y = 222; y <= 330; y += 28) { routes.push([[270,y],[300,y + 4]]); routes.push([[270,y],[240,y + 4]]); }
+
+  // ===== nodes (electrodes) =====
   const N = {
-    brain: { code: 'N-01', name: 'Mission', sub: 'Why medical robotics', side: 'r' },
-    heart: { code: 'N-02', name: 'Heart Rate Monitor', sub: 'Wearable for elderly users', side: 'r' },
-    lung:  { code: 'N-03', name: 'Gait Thermodynamics', sub: 'KAIST heat flux sensors', side: 'r' },
-    core:  { code: 'N-04', name: 'Thermal Core', sub: 'Capstone heat recovery', side: 'r' },
-    hand:  { code: 'N-05', name: 'Soft Hands', sub: 'Finger and gripper builds', side: 'r' },
-    eye:   { code: 'N-06', name: 'Mechatronics', sub: 'Autonomous puck launcher', side: 'l' },
-    knee:  { code: 'N-07', name: 'Lower Limb', sub: 'Fracture model and soft leg', side: 'r' }
+    brain: { code: 'N-01', name: 'Mission', sub: 'Why medical robotics', xy: [270,124], side: 'r', post: 404, py: 150 },
+    heart: { code: 'N-02', name: 'Heart Rate Monitor', sub: 'Wearable for elderly users', xy: [283,250], side: 'r', post: 404, py: 196 },
+    core:  { code: 'N-04', name: 'Thermal Core', sub: 'Capstone heat recovery', xy: [270,320], side: 'r', post: 404, py: 310 },
+    hand:  { code: 'N-05', name: 'Soft Hands', sub: 'Finger and gripper builds', xy: [342,384], side: 'r', post: 404, py: 322 },
+    knee:  { code: 'N-07', name: 'Lower Limb', sub: 'Fracture model and soft leg', xy: [294,452], side: 'r', post: 404, py: 436 },
+    eye:   { code: 'N-06', name: 'Mechatronics', sub: 'Autonomous puck launcher', xy: [198,384], side: 'l', post: 136, py: 322 },
+    lung:  { code: 'N-03', name: 'Gait Thermodynamics', sub: 'KAIST heat flux sensors', xy: [247,492], side: 'l', post: 136, py: 456 }
   };
-  const nodesG = $('nodes');
+  const cables = $('cables'), nodesG = $('nodes');
   Object.entries(N).forEach(([k, n]) => {
-    const [x, y] = P[k];
+    const [x, y] = n.xy, px = n.post, sag = 12; n.py = y - 24;
+    mk('path', { d: `M${px} ${n.py} C${px + (x - px) * .3} ${n.py + sag} ${x + (px - x) * .3} ${y + sag} ${x} ${y}` }, cables);
     const g = mk('g', { class: 'node hit' + (k === 'heart' ? ' heart' : ''), tabindex: 0, role: 'button', 'aria-label': n.name, 'data-key': k }, nodesG);
-    const r = n.side === 'r', tx = r ? 416 : 124;
-    mk('line', { x1: x + (r ? 10 : -10), y1: y, x2: tx + (r ? -6 : 6), y2: y, stroke: '#5fe3ff', 'stroke-opacity': .25, 'stroke-dasharray': '2 3' }, g);
+    const r = n.side === 'r', tx = r ? 440 : 100, ly = k === 'heart' ? y - 8 : y;
+    mk('path', { d: `M${r ? 426 : 114} ${ly} H${tx + (r ? -4 : 4)}`, stroke: '#8ff0ff', 'stroke-opacity': .45, 'stroke-dasharray': '2 3', fill: 'none' }, g);
     mk('circle', { class: 'ring', cx: x, cy: y, r: 8 }, g);
-    mk('circle', { class: 'core', cx: x, cy: y, r: 7 }, g);
-    mk('circle', { class: 'dot', cx: x, cy: y, r: 3 }, g);
+    mk('circle', { class: 'core', cx: x, cy: y, r: 6.5 }, g);
+    mk('circle', { class: 'dot', cx: x, cy: y, r: 2.6 }, g);
     mk('circle', { cx: x, cy: y, r: 16, fill: 'transparent' }, g);
-    const t = mk('text', { x: tx, y: y + 3, 'text-anchor': r ? 'start' : 'end' }, g); t.textContent = n.name;
+    const t = mk('text', { x: tx, y: ly + 3.5, 'text-anchor': r ? 'start' : 'end' }, g); t.textContent = n.name;
+    const t2 = mk('text', { x: tx, y: ly + 16, 'text-anchor': r ? 'start' : 'end', class: 'sub' }, g); t2.textContent = n.code;
     g.addEventListener('click', () => show(k));
     g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(k); } });
   });
 
+  // ===== pulses along nerve routes =====
   if (!reduce) {
+    const lens = routes.map(r => { const segs = []; let tot = 0; for (let i = 1; i < r.length; i++) { const l = Math.hypot(r[i][0] - r[i-1][0], r[i][1] - r[i-1][1]); segs.push(l); tot += l; } return { segs, tot }; });
+    const at = (ri, d) => { const r = routes[ri], L = lens[ri]; for (let i = 0; i < L.segs.length; i++) { if (d <= L.segs[i]) { const t = d / L.segs[i]; return [r[i][0] + (r[i+1][0] - r[i][0]) * t, r[i][1] + (r[i+1][1] - r[i][1]) * t]; } d -= L.segs[i]; } return r[r.length - 1]; };
     const pg = $('pulses');
-    const ps = Array.from({ length: 18 }, () => ({ el: mk('circle', { r: 2 }, pg) }));
-    const reset = p => { p.e = E[Math.floor(Math.random() * E.length)]; if (Math.random() < .5) p.e = [p.e[1], p.e[0]]; p.t = 0; p.s = .005 + Math.random() * .01; };
-    ps.forEach(p => { reset(p); p.t = Math.random(); });
+    const ps = Array.from({ length: 22 }, () => ({ el: mk('circle', { r: 1.9 }, pg) }));
+    const reset = p => { p.ri = Math.floor(Math.random() * routes.length); p.rev = Math.random() < .35; p.d = 0; p.v = .8 + Math.random() * 1.6; };
+    ps.forEach(p => { reset(p); p.d = Math.random() * lens[p.ri].tot; });
     (function loop() {
       ps.forEach(p => {
-        p.t += p.s; if (p.t >= 1) reset(p);
-        const A = P[p.e[0]], B = P[p.e[1]], t = p.t;
-        const mx = (A[0]+B[0])/2 + (A[1]-B[1])*0.08, my = (A[1]+B[1])/2 + (B[0]-A[0])*0.08;
-        const x = (1-t)*(1-t)*A[0] + 2*(1-t)*t*mx + t*t*B[0], y = (1-t)*(1-t)*A[1] + 2*(1-t)*t*my + t*t*B[1];
-        p.el.setAttribute('cx', x.toFixed(1)); p.el.setAttribute('cy', y.toFixed(1)); p.el.setAttribute('opacity', Math.sin(t * Math.PI).toFixed(2));
+        p.d += p.v; const tot = lens[p.ri].tot; if (p.d >= tot) reset(p);
+        const d = p.rev ? lens[p.ri].tot - p.d : p.d, q = at(p.ri, Math.max(0, d)), f = p.d / lens[p.ri].tot;
+        p.el.setAttribute('cx', q[0].toFixed(1)); p.el.setAttribute('cy', q[1].toFixed(1)); p.el.setAttribute('opacity', Math.sin(Math.min(1, f) * Math.PI).toFixed(2));
       });
       requestAnimationFrame(loop);
     })();

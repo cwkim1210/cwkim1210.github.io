@@ -292,21 +292,21 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
         <g class="body" stroke="#c8f8ff" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
           <!-- legs + boots -->
           <g fill="#05222e">
-            <path d="M762 476 C762 502 760 526 760 548 L778 550 C778 526 780 502 784 478 Z"/>
-            <path d="M814 478 C818 502 822 526 822 549 L840 549 C840 524 838 502 836 476 Z"/>
+            <path d="M764 452 C763 486 761 520 760 548 L778 550 C779 520 781 486 784 454 Z"/>
+            <path d="M814 454 C817 486 821 520 822 549 L840 549 C840 520 838 486 836 452 Z"/>
             <path d="M756 546 C752 556 756 564 766 565 C777 567 787 565 789 559 C789 553 784 549 778 547 Z"/>
             <path d="M819 547 C816 556 820 564 830 565 C842 567 852 565 854 559 C852 553 847 549 840 548 Z"/>
           </g>
-          <g fill="none" stroke-opacity=".45" stroke-width="1"><path d="M770 488 C770 508 769 526 769 542"/><path d="M827 488 C829 508 830 526 831 542"/><path d="M758 557 C768 559 778 559 788 557"/><path d="M820 557 C832 559 843 559 853 557"/></g>
+          <g fill="none" stroke-opacity=".45" stroke-width="1"><path d="M771 464 C770 492 769 520 769 542"/><path d="M826 464 C828 492 830 520 831 542"/><path d="M758 557 C768 559 778 559 788 557"/><path d="M820 557 C832 559 843 559 853 557"/></g>
           <!-- coat: broad shoulders, tapered waist, flared hem -->
-          <path fill="url(#coatFill)" d="M776 208 C788 204 806 204 818 208 C836 210 850 218 854 234 C858 258 858 290 852 322 C852 360 858 418 868 472 C836 486 760 488 728 476 C736 418 742 360 744 322 C740 292 740 262 744 236 C748 220 760 212 776 208 Z"/>
-          <path fill="none" stroke="#ffffff" stroke-opacity=".75" stroke-width="2" d="M744 238 C740 262 742 292 744 322 C742 360 736 418 729 474"/>
+          <path fill="url(#coatFill)" d="M776 208 C788 204 806 204 818 208 C836 210 850 218 854 234 C858 258 858 290 852 322 C852 356 858 404 866 450 C836 462 760 464 730 452 C736 404 742 360 744 322 C740 292 740 262 744 236 C748 220 760 212 776 208 Z"/>
+          <path fill="none" stroke="#ffffff" stroke-opacity=".75" stroke-width="2" d="M744 238 C740 262 742 292 744 322 C742 356 736 404 731 452"/>
           <g fill="none" stroke-opacity=".55" stroke-width="1.1">
-            <path d="M797 222 C797 300 799 380 801 430"/>
-            <path d="M801 430 C802 448 802 466 802 486 M801 430 C806 448 811 466 815 484"/>
+            <path d="M797 222 C797 300 799 370 801 410"/>
+            <path d="M801 410 C802 428 802 446 802 462 M801 410 C806 426 811 444 815 460"/>
             <path d="M762 232 C772 242 776 256 778 270 M836 230 C826 242 822 256 820 270"/>
             <path d="M778 280 C772 320 768 360 764 400 M820 280 C826 320 832 360 838 400" stroke-opacity=".35"/>
-            <path d="M752 420 C750 440 746 458 742 476 M850 420 C854 440 858 456 862 472" stroke-opacity=".35"/>
+            <path d="M752 404 C750 420 746 436 743 452 M850 404 C854 420 857 436 860 450" stroke-opacity=".35"/>
           </g>
           <!-- popped collar -->
           <path fill="#0d4253" d="M772 212 C772 200 782 194 797 194 C812 194 822 200 822 212 C810 220 784 220 772 212 Z"/>
@@ -363,7 +363,11 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   // ===== human outline (right half, mirrored) =====
   const CX = 270;
   const R = [[0,108],[13,110],[21,118],[24,131],[23,145],[19,157],[14,166],[10,172],[12,177],[17,184],[30,190],[46,195],[58,202],[66,214],[68,228],[67,244],[70,258],[68,272],[70,288],[75,302],[78,318],[79,334],[80,346],[85,356],[89,370],[86,384],[80,390],[73,386],[69,374],[67,360],[64,348],[60,330],[57,312],[55,298],[54,286],[56,270],[55,252],[50,236],[47,246],[46,262],[42,280],[38,296],[37,308],[40,320],[43,334],[47,350],[49,368],[47,388],[43,410],[38,428],[36,440],[38,452],[41,466],[40,482],[34,500],[28,514],[27,522],[30,532],[34,542],[30,548],[16,548],[10,544],[10,536],[11,522],[16,500],[19,478],[17,458],[14,442],[13,430],[14,410],[11,390],[7,370],[4,360],[0,357]];
-  const pts = R.map(([dx, y]) => [CX + dx, y]).concat(R.slice(1, -1).reverse().map(([dx, y]) => [CX - dx, y]));
+  // stretch: upper body compressed slightly, legs lengthened
+  const Y = y => y <= 357 ? 100 + (y - 108) * .9 : 324 + (y - 357) * 1.173;
+  const RM = d => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (m, x, y) => x + ' ' + Y(+y).toFixed(1));
+  const mapR = r => r.map(([x, y]) => [x, Y(y)]);
+  const pts = R.map(([dx, y]) => [CX + dx, +Y(y).toFixed(1)]).concat(R.slice(1, -1).reverse().map(([dx, y]) => [CX - dx, +Y(y).toFixed(1)]));
   function smoothClosed(p) {
     const n = p.length; let d = `M${p[0][0]} ${p[0][1]}`;
     for (let i = 0; i < n; i++) {
@@ -377,7 +381,7 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
 
   // anatomy detail lines (mirrored)
   const an = $('anatomy');
-  const both = d => { mk('path', { d }, an); mk('path', { d, transform: `translate(${2 * CX},0) scale(-1,1)` }, an); };
+  const both = d0 => { const d = RM(d0); mk('path', { d }, an); mk('path', { d, transform: `translate(${2 * CX},0) scale(-1,1)` }, an); };
   both('M262 192 Q246 196 228 200');                      // clavicle
   both('M266 212 Q246 240 222 228'); both('M268 236 Q250 246 230 238'); // pectoral
   both('M224 206 Q212 222 215 244');                      // deltoid
@@ -390,30 +394,30 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   both('M234 462 Q230 482 240 502');                      // calf
   both('M204 300 Q199 318 204 334');                      // forearm
   both('M183 372 L181 388 M188 374 L188 390 M193 374 L194 389 M197 372 L199 385'); // fingers
-  mk('line', { x1: CX, y1: 248, x2: CX, y2: 316 }, an);   // linea alba
-  mk('circle', { cx: CX, cy: 320, r: 1.5 }, an);           // navel
+  mk('line', { x1: CX, y1: Y(248), x2: CX, y2: Y(316) }, an);   // linea alba
+  mk('circle', { cx: CX, cy: Y(320), r: 1.5 }, an);           // navel
 
   // ===== nervous system =====
   const nerves = $('nerves');
   const path = (d, w, o) => mk('path', { d, 'stroke-width': w, 'stroke-opacity': o }, nerves);
   // brain
-  path('M252 128 Q250 112 264 108 Q276 104 286 112 Q292 120 288 132 Q284 140 270 140 Q256 140 252 128 Z', 1.1, .9);
-  path('M258 118 Q264 114 268 120 Q272 112 280 118 M256 128 Q262 124 266 130 Q272 124 278 130 Q282 126 286 128 M270 108 Q268 120 270 140', .8, .6);
-  path('M262 140 Q270 148 278 140', .9, .7);
+  path(RM('M252 128 Q250 112 264 108 Q276 104 286 112 Q292 120 288 132 Q284 140 270 140 Q256 140 252 128 Z'), 1.1, .9);
+  path(RM('M258 118 Q264 114 268 120 Q272 112 280 118 M256 128 Q262 124 266 130 Q272 124 278 130 Q282 126 286 128 M270 108 Q268 120 270 140'), .8, .6);
+  path(RM('M262 140 Q270 148 278 140'), .9, .7);
   // spine with vertebra ticks
-  path('M270 140 L270 356', 1.6, .95);
-  for (let y = 188; y <= 350; y += 8) mk('line', { x1: CX - 3, y1: y, x2: CX + 3, y2: y, 'stroke-width': .8, 'stroke-opacity': .55 }, nerves);
+  path(RM('M270 140 L270 356'), 1.6, .95);
+  for (let y0 = 188; y0 <= 350; y0 += 8) { const y = Y(y0); mk('line', { x1: CX - 3, y1: y, x2: CX + 3, y2: y, 'stroke-width': .8, 'stroke-opacity': .55 }, nerves); }
   // intercostal nerves
-  for (let y = 212; y <= 300; y += 14) {
-    const w = y < 300 ? 34 : 30;
+  for (let y0 = 212; y0 <= 300; y0 += 14) { const y = Y(y0);
+    const w = y0 < 300 ? 34 : 30;
     path(`M270 ${y} Q${270 + w * .6} ${y - 2} ${270 + w} ${y + 10}`, .7, .45);
     path(`M270 ${y} Q${270 - w * .6} ${y - 2} ${270 - w} ${y + 10}`, .7, .45);
   }
   // limb routes (right side, mirrored for left)
-  const armR = [[270,198],[300,200],[322,214],[332,240],[338,286],[346,318],[350,346],[352,370]];
-  const legR = [[270,352],[284,360],[292,390],[296,440],[294,480],[291,515],[293,540]];
+  const armR = mapR([[270,198],[300,200],[322,214],[332,240],[338,286],[346,318],[350,346],[352,370]]);
+  const legR = mapR([[270,352],[284,360],[292,390],[296,440],[294,480],[291,515],[293,540]]);
   const mirror = r => r.map(([x, y]) => [2 * CX - x, y]);
-  const routes = [[[270,140],[270,356]], armR, mirror(armR), legR, mirror(legR)];
+  const routes = [mapR([[270,140],[270,356]]), armR, mirror(armR), legR, mirror(legR)];
   const pl = r => 'M' + r.map(p => p.join(' ')).join(' L');
   function twigs(route, side0) {
     let side = side0;
@@ -429,9 +433,9 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   }
   [armR, mirror(armR), legR, mirror(legR)].forEach((r, i) => { path(pl(r), 1.2, .85); twigs(r, i % 2 ? -1 : 1); });
   // finger nerves
-  [[352,372],[188,372]].forEach(([x, y]) => { const s = x > CX ? 1 : -1; [-6,-2,2,6].forEach(o => path(`M${x} ${y} l${s * (o * .2 + 1)} ${12 + Math.abs(o) * -.3} l${s * o * .4} 4`, .6, .5)); });
+  [[352,Y(372)],[188,Y(372)]].forEach(([x, y]) => { const s = x > CX ? 1 : -1; [-6,-2,2,6].forEach(o => path(`M${x} ${y} l${s * (o * .2 + 1)} ${12 + Math.abs(o) * -.3} l${s * o * .4} 4`, .6, .5)); });
   // intercostal routes for pulses
-  for (let y = 212; y <= 300; y += 28) { routes.push([[270,y],[300,y + 4]]); routes.push([[270,y],[240,y + 4]]); }
+  for (let y0 = 212; y0 <= 300; y0 += 28) { const y = Y(y0); routes.push([[270,y],[300,y + 4]]); routes.push([[270,y],[240,y + 4]]); }
 
   // organic branching (seeded so it is stable)
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -448,9 +452,9 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
     }
   });
   // plexus fans: brachial, lumbar, sacral
-  [[300,204,0.2],[240,204,Math.PI-0.2]].forEach(([x,y,a]) => { for (let i = -2; i <= 2; i++) grow(x, y, a + i * .25, 14, 2, .7, .55); });
-  for (let i = -3; i <= 3; i++) { grow(270, 346, Math.PI / 2 + i * .32, 16, 2, .7, .55); }
-  for (let y = 200; y <= 320; y += 9) { grow(270, y, -.25 + (y % 2) * .1, 20 + (y - 200) * .05, 1, .55, .4); grow(270, y, Math.PI + .25, 20 + (y - 200) * .05, 1, .55, .4); }
+  [[300,Y(204),0.2],[240,Y(204),Math.PI-0.2]].forEach(([x,y,a]) => { for (let i = -2; i <= 2; i++) grow(x, y, a + i * .25, 14, 2, .7, .55); });
+  for (let i = -3; i <= 3; i++) { grow(270, Y(346), Math.PI / 2 + i * .32, 16, 2, .7, .55); }
+  for (let y0 = 200; y0 <= 320; y0 += 9) { const y = Y(y0); grow(270, y, -.25 + (y % 2) * .1, 20 + (y0 - 200) * .05, 1, .55, .4); grow(270, y, Math.PI + .25, 20 + (y0 - 200) * .05, 1, .55, .4); }
 
   // bolts on the top band and seams on the base
   const bolts = $('bolts'), seams = $('seams');
@@ -469,7 +473,7 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   };
   const cables = $('cables'), nodesG = $('nodes');
   Object.entries(N).forEach(([k, n]) => {
-    const [x, y] = n.xy, px = n.post, sag = 12; n.py = y - 24;
+    const x = n.xy[0], y = Y(n.xy[1]), px = n.post, sag = 12; n.py = y - 24;
     mk('path', { d: `M${px} ${n.py} C${px + (x - px) * .3} ${n.py + sag} ${x + (px - x) * .3} ${y + sag} ${x} ${y}` }, cables);
     const g = mk('g', { class: 'node hit' + (k === 'heart' ? ' heart' : ''), tabindex: 0, role: 'button', 'aria-label': n.name, 'data-key': k }, nodesG);
     const r = n.side === 'r', tx = r ? 440 : 100, ly = k === 'heart' ? y - 8 : y;

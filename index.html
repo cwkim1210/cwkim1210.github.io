@@ -71,22 +71,6 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
 @keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.6); } 30% { transform: scale(1.1); } 45% { transform: scale(1.4); } }
 @media (prefers-reduced-motion: reduce) { .node .ring, .node.heart .dot, .scanring { animation: none; } }
 
-/* 3d stage */
-#three { position: absolute; inset: 0; }
-#three canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
-#labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.lbl { position: absolute; left: 0; top: 0; pointer-events: auto; background: none; border: 0; padding: 0; cursor: pointer; will-change: transform; }
-.lbl .in { position: absolute; top: 0; display: flex; flex-direction: column; white-space: nowrap; transform: translateY(-50%); padding: 4px 8px; border-left: 1px solid rgba(143,240,255,.6); background: linear-gradient(90deg, rgba(3,20,28,.75), rgba(3,20,28,0)); }
-.lbl.r .in { left: 16px; }
-.lbl.l .in { right: 16px; border-left: 0; border-right: 1px solid rgba(143,240,255,.6); text-align: right; background: linear-gradient(270deg, rgba(3,20,28,.75), rgba(3,20,28,0)); }
-.lbl.me-l .in { left: 0; transform: translate(-50%, -100%); border: 0; text-align: center; background: none; }
-.lbl .t { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #cdeff7; text-shadow: 0 0 8px rgba(95,227,255,.7); }
-.lbl .c { font-family: var(--mono); font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #6f9fb0; }
-.lbl:hover .t, .lbl.active .t, .lbl:focus-visible .t { color: #fff; }
-.lbl.active .in { border-color: #fff; }
-.loading { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--glow); pointer-events: none; }
-@media (max-width: 760px) { .lbl .t { font-size: 9.5px; letter-spacing: .08em; } .lbl .c { display: none; } }
-
 /* info panel */
 .panel { position: absolute; top: 12px; right: max(20px, env(safe-area-inset-right, 0px)); bottom: 12px; width: min(400px, calc(100% - 40px)); overflow: auto; z-index: 5;
   background: var(--panel); border: 1px solid var(--line); box-shadow: 0 0 30px rgba(95,227,255,.12), inset 0 0 40px rgba(95,227,255,.04);
@@ -152,20 +136,205 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   </header>
 
   <main class="stage">
-    <div id="three" aria-label="3D lab scene: a glass capsule holding a human figure with a glowing nervous system, and Chanwoo in a lab coat reading a note. Drag to rotate."></div>
-    <div id="labels">
-      <button type="button" class="lbl node r" data-key="brain"><span class="in"><span class="t">Mission</span><span class="c">N-01</span></span></button>
-      <button type="button" class="lbl node r" data-key="heart"><span class="in"><span class="t">Heart Rate Monitor</span><span class="c">N-02</span></span></button>
-      <button type="button" class="lbl node r" data-key="core"><span class="in"><span class="t">Thermal Core</span><span class="c">N-04</span></span></button>
-      <button type="button" class="lbl node r" data-key="hand"><span class="in"><span class="t">Soft Hands</span><span class="c">N-05</span></span></button>
-      <button type="button" class="lbl node r" data-key="knee"><span class="in"><span class="t">Lower Limb</span><span class="c">N-07</span></span></button>
-      <button type="button" class="lbl node l" data-key="eye"><span class="in"><span class="t">Mechatronics</span><span class="c">N-06</span></span></button>
-      <button type="button" class="lbl node l" data-key="lung"><span class="in"><span class="t">Gait Thermodynamics</span><span class="c">N-03</span></span></button>
-      <button type="button" class="lbl me-l" id="meBtn" data-key="me"><span class="in"><span class="t">Chanwoo Kim</span><span class="c">tap for profile</span></span></button>
-    </div>
-    <div id="loading" class="loading">Booting lab systems…</div>
-    <p id="nogl" class="loading" hidden>This view needs WebGL. Use the menu above to browse everything.</p>
-    <span class="hint">Drag to rotate · Tap an electrode or me</span>
+    <svg id="scene" viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet" role="group" aria-label="A lab with a glass capsule holding a human figure with a glowing nervous system, and Chanwoo in a lab coat reading a note">
+      <defs>
+        <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#06202c"/><stop offset=".75" stop-color="#041520"/><stop offset="1" stop-color="#03101a"/>
+        </linearGradient>
+        <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#062431"/><stop offset="1" stop-color="#020a10"/>
+        </linearGradient>
+        <radialGradient id="aura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#5fe3ff" stop-opacity=".28"/><stop offset=".6" stop-color="#5fe3ff" stop-opacity=".06"/><stop offset="1" stop-color="#5fe3ff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff6ff" stop-opacity=".16"/><stop offset="1" stop-color="#bff6ff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="glass" x1="0" x2="1">
+          <stop offset="0" stop-color="#8ff0ff" stop-opacity=".16"/><stop offset=".1" stop-color="#8ff0ff" stop-opacity=".03"/>
+          <stop offset=".8" stop-color="#8ff0ff" stop-opacity=".0"/><stop offset=".92" stop-color="#8ff0ff" stop-opacity=".1"/><stop offset="1" stop-color="#8ff0ff" stop-opacity=".18"/>
+        </linearGradient>
+        <clipPath id="tankClip"><rect x="132" y="96" width="276" height="456"/></clipPath>
+        <linearGradient id="rod" x1="0" x2="1"><stop offset="0" stop-color="#03141c"/><stop offset=".35" stop-color="#2a7f95"/><stop offset=".5" stop-color="#bff6ff"/><stop offset=".7" stop-color="#1b5d70"/><stop offset="1" stop-color="#03141c"/></linearGradient>
+        <linearGradient id="band" x1="0" x2="1"><stop offset="0" stop-color="#041a24"/><stop offset=".3" stop-color="#0d4253"/><stop offset=".55" stop-color="#1a6a80"/><stop offset=".8" stop-color="#0b3a4a"/><stop offset="1" stop-color="#041a24"/></linearGradient>
+        <radialGradient id="bodyFill" cx=".5" cy=".42" r=".6"><stop offset="0" stop-color="#5fe3ff" stop-opacity=".2"/><stop offset=".7" stop-color="#5fe3ff" stop-opacity=".07"/><stop offset="1" stop-color="#5fe3ff" stop-opacity=".14"/></radialGradient>
+        <linearGradient id="coatFill" x1="0" x2="1"><stop offset="0" stop-color="#0d4253"/><stop offset=".45" stop-color="#062a37"/><stop offset="1" stop-color="#031820"/></linearGradient>
+        <linearGradient id="hl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dffbff" stop-opacity="0"/><stop offset=".2" stop-color="#dffbff" stop-opacity=".22"/><stop offset=".8" stop-color="#dffbff" stop-opacity=".18"/><stop offset="1" stop-color="#dffbff" stop-opacity="0"/></linearGradient>
+      </defs>
+
+      <!-- ===== LAB ===== -->
+      <rect x="-500" y="-100" width="1900" height="570" fill="url(#wall)"/>
+      <rect x="-500" y="470" width="1900" height="300" fill="url(#floorG)"/>
+      <g id="floorLines" stroke="#5fe3ff" stroke-opacity=".09"></g>
+      <line x1="-500" y1="470" x2="1400" y2="470" stroke="#5fe3ff" stroke-opacity=".35"/>
+      <!-- wall panels -->
+      <g stroke="#5fe3ff" stroke-opacity=".07"><line x1="110" y1="40" x2="110" y2="470"/><line x1="440" y1="40" x2="440" y2="470"/><line x1="660" y1="40" x2="660" y2="470"/><line x1="0" y1="40" x2="900" y2="40"/><line x1="0" y1="250" x2="900" y2="250"/></g>
+      <!-- ceiling lights -->
+      <g class="lamp"><rect x="150" y="12" width="240" height="6" rx="3" fill="#dffbff"/><path d="M150 18 H390 L460 470 H80 Z" fill="url(#cone)"/></g>
+      <g class="lamp"><rect x="600" y="12" width="220" height="6" rx="3" fill="#dffbff"/><path d="M600 18 H820 L880 470 H540 Z" fill="url(#cone)" opacity=".7"/></g>
+      <!-- wall display: step response -->
+      <g transform="translate(468,78)">
+        <rect width="170" height="100" rx="3" fill="#031822" stroke="#5fe3ff" stroke-opacity=".55"/>
+        <g stroke="#5fe3ff" stroke-opacity=".12"><line x1="12" y1="80" x2="160" y2="80"/><line x1="12" y1="56" x2="160" y2="56"/><line x1="12" y1="32" x2="160" y2="32"/><line x1="12" y1="14" x2="12" y2="80"/></g>
+        <path d="M14 78 H46 C56 78 58 26 80 22 S120 20 158 20" fill="none" stroke="#8ff0ff" stroke-width="1.6"/>
+        <path d="M14 78 H46 C66 78 76 46 100 36 S140 28 158 27" fill="none" stroke="#8ff0ff" stroke-opacity=".45" stroke-dasharray="3 3"/>
+        <text x="12" y="10" font-family="JetBrains Mono, monospace" font-size="7" letter-spacing="1" fill="#6f9fb0">HFS STEP RESPONSE · τ</text>
+        <text x="158" y="94" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="7" fill="#6f9fb0">t [s]</text>
+      </g>
+      <!-- shelves -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".32" stroke-width="1">
+        <line x1="450" y1="232" x2="640" y2="232"/><line x1="450" y1="300" x2="640" y2="300"/>
+        <line x1="456" y1="300" x2="456" y2="306"/><line x1="634" y1="300" x2="634" y2="306"/>
+        <path d="M462 232 V206 H476 V232 M468 206 V200"/>
+        <path d="M486 232 L490 214 V204 H498 V214 L502 232 Z"/>
+        <rect x="514" y="210" width="26" height="22" rx="2"/><line x1="514" y1="218" x2="540" y2="218"/>
+        <path d="M552 232 V196 Q552 190 558 190 H566 Q572 190 572 196 V232"/>
+        <path d="M584 232 l6 -14 v-10 h6 v10 l6 14 z"/><path d="M612 232 V214 H632 V232 M616 214 V208 H628 V214"/>
+        <rect x="462" y="276" width="40" height="24" rx="2"/><rect x="510" y="282" width="18" height="18" rx="9"/>
+        <path d="M542 300 V268 H556 V300 M546 268 V262"/><rect x="570" y="270" width="58" height="30" rx="2"/><line x1="576" y1="280" x2="622" y2="280"/>
+      </g>
+      <!-- lab bench -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".38" stroke-width="1.1">
+        <path d="M600 398 H900 M600 398 V404 H900"/>
+        <line x1="612" y1="404" x2="612" y2="470"/><line x1="886" y1="404" x2="886" y2="470"/>
+        <rect x="628" y="410" width="80" height="44"/><line x1="628" y1="432" x2="708" y2="432"/><line x1="664" y1="420" x2="672" y2="420"/><line x1="664" y1="442" x2="672" y2="442"/>
+        <!-- monitor with ECG -->
+        <rect x="806" y="318" width="84" height="56" rx="3" fill="#031822"/><path d="M842 374 V390 M828 398 L834 390 H850 L856 398"/>
+        <path d="M812 350 H828 L832 342 L836 350 H842 L846 328 L851 362 L855 350 H884" stroke="#8ff0ff" stroke-opacity=".9"/>
+        <!-- microscope -->
+        <path d="M640 398 H676 M652 398 V388 M650 388 H664 M656 388 L672 352 M668 360 L684 352 L676 338 L664 344 Z M672 352 L680 368 H690"/>
+        <!-- flasks -->
+        <path d="M696 398 L706 374 V362 H714 V374 L724 398 Z"/><line x1="701" y1="388" x2="719" y2="388" stroke-opacity=".6"/>
+        <path d="M734 398 V368 H744 V398"/><path d="M752 398 V356 H760 V398"/>
+        <!-- robot arm -->
+        <path d="M770 398 H800 M778 398 V390 H792 V398 M785 390 L776 360 L798 340 L806 346 M776 360 m-4 0 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0 M798 340 m-3 0 a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0"/>
+      </g>
+      <!-- left wall rack -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".25">
+        <rect x="18" y="230" width="70" height="240"/><line x1="18" y1="290" x2="88" y2="290"/><line x1="18" y1="350" x2="88" y2="350"/><line x1="18" y1="410" x2="88" y2="410"/>
+        <g stroke-opacity=".6"><line x1="28" y1="250" x2="40" y2="250"/><line x1="28" y1="310" x2="44" y2="310"/><line x1="28" y1="370" x2="36" y2="370"/></g>
+        <g fill="#8ff0ff" stroke="none" opacity=".8"><circle cx="78" cy="250" r="2"/><circle cx="78" cy="310" r="2"/><circle cx="70" cy="310" r="2"/><circle cx="78" cy="370" r="2"/></g>
+      </g>
+
+      <!-- ===== CAPSULE (back) ===== -->
+      <ellipse cx="270" cy="560" rx="230" ry="44" fill="url(#aura)"/>
+      <ellipse cx="270" cy="320" rx="190" ry="250" fill="url(#aura)" opacity=".7"/>
+      <g fill="none" stroke="#8ff0ff">
+        <path d="M132 96 A138 20 0 0 1 408 96" stroke-opacity=".35"/>
+        <path d="M132 552 A138 20 0 0 1 408 552" stroke-opacity=".3"/>
+        <line x1="190" y1="80" x2="190" y2="536" stroke-opacity=".22" stroke-width="3"/>
+        <line x1="350" y1="80" x2="350" y2="536" stroke-opacity=".22" stroke-width="3"/>
+      </g>
+      <rect x="132" y="96" width="276" height="456" fill="url(#glass)"/>
+      <!-- platform disc inside -->
+      <ellipse cx="270" cy="546" rx="110" ry="14" fill="#06303e" stroke="#8ff0ff" stroke-opacity=".6"/>
+      <ellipse cx="270" cy="546" rx="80" ry="9" fill="none" stroke="#8ff0ff" stroke-opacity=".35"/>
+
+      <!-- ===== HUMAN FIGURE ===== -->
+      <g class="glow-soft">
+        <path id="bodyOutline" fill="url(#bodyFill)" stroke="#b8f6ff" stroke-width="1.5" stroke-linejoin="round"/>
+      </g>
+      <g id="anatomy" fill="none" stroke="#b8f6ff" stroke-opacity=".35" stroke-width=".9" stroke-linecap="round"></g>
+      <g id="nerves" fill="none" stroke="#8ff0ff" stroke-linecap="round" class="glow-soft"></g>
+      <g id="pulses" fill="#e8fdff"></g>
+
+      <!-- ===== CAPSULE (front) ===== -->
+      <g clip-path="url(#tankClip)"><ellipse class="scanring" cx="270" cy="110" rx="138" ry="20" fill="none" stroke="#8ff0ff" stroke-opacity=".45"/></g>
+      <ellipse cx="270" cy="112" rx="120" ry="15" fill="#5fe3ff" fill-opacity=".12" stroke="#bff6ff" stroke-opacity=".5"/>
+      <ellipse cx="270" cy="112" rx="92" ry="10" fill="none" stroke="#bff6ff" stroke-opacity=".35"/>
+      <g fill="none" stroke="#bff6ff" class="glow-soft">
+        <path d="M132 96 A138 20 0 0 0 408 96" stroke-opacity=".85"/>
+        <path d="M132 552 A138 20 0 0 0 408 552" stroke-opacity=".7"/>
+      </g>
+      <!-- glass reflections, curved -->
+      <path d="M152 118 C146 220 146 420 154 532" fill="none" stroke="url(#hl)" stroke-width="7" stroke-linecap="round"/>
+      <path d="M166 130 C161 240 161 410 168 512" fill="none" stroke="url(#hl)" stroke-width="2"/>
+      <path d="M392 124 C398 240 398 420 390 528" fill="none" stroke="url(#hl)" stroke-width="3"/>
+      <!-- cable bundle looping off the left post -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".55" stroke-linecap="round">
+        <path d="M116 186 C92 196 84 230 86 270 C88 330 80 390 90 450 C96 500 92 540 104 560 C116 576 140 584 170 590" stroke-width="2.4"/>
+        <path d="M116 192 C98 204 92 236 94 270 C96 330 90 390 98 448 C104 498 100 536 110 556" stroke-width="1.4"/>
+        <path d="M116 312 C100 320 96 340 98 360 C100 380 96 400 92 420" stroke-width="1.6"/>
+      </g>
+      <!-- front posts: rounded rods -->
+      <g stroke="#bff6ff" stroke-opacity=".7" stroke-width=".8">
+        <rect x="125" y="84" width="12" height="478" rx="6" fill="url(#rod)"/>
+        <rect x="403" y="84" width="12" height="478" rx="6" fill="url(#rod)"/>
+      </g>
+      <g fill="#062a37" stroke="#8ff0ff" stroke-width="1">
+        <path d="M112 172 Q112 166 118 166 H126 V202 H118 Q112 202 112 196 Z"/><path d="M112 302 Q112 298 118 298 H126 V324 H118 Q112 324 112 320 Z"/><path d="M112 432 Q112 426 118 426 H126 V462 H118 Q112 462 112 456 Z"/>
+        <path d="M428 172 Q428 166 422 166 H414 V202 H422 Q428 202 428 196 Z"/><path d="M428 302 Q428 298 422 298 H414 V324 H422 Q428 324 428 320 Z"/><path d="M428 432 Q428 426 422 426 H414 V462 H422 Q428 462 428 456 Z"/>
+      </g>
+      <g fill="#bff6ff"><circle cx="119" cy="176" r="1.6"/><circle cx="119" cy="190" r="1.2"/><circle cx="119" cy="436" r="1.6"/><circle cx="421" cy="176" r="1.6"/><circle cx="421" cy="190" r="1.2"/><circle cx="421" cy="436" r="1.6"/></g>
+      <!-- top ring: thick band with bolts -->
+      <path d="M112 66 A158 28 0 0 1 428 66 A158 28 0 0 1 112 66 Z" fill="#041a24" stroke="#bff6ff" stroke-opacity=".5"/>
+      <ellipse cx="270" cy="66" rx="128" ry="19" fill="#03141c" stroke="#8ff0ff" stroke-opacity=".45"/>
+      <path d="M112 66 A158 28 0 0 0 428 66 V90 A158 28 0 0 1 112 90 Z" fill="url(#band)" stroke="#bff6ff" stroke-opacity=".85" class="glow-soft"/>
+      <path d="M116 78 A154 27 0 0 0 424 78" fill="none" stroke="#bff6ff" stroke-opacity=".3"/>
+      <g id="bolts" fill="#dffbff"></g>
+      <g fill="#062a37" stroke="#bff6ff" stroke-opacity=".7"><path d="M120 88 h22 v10 q0 4 -4 4 h-14 q-4 0 -4 -4 z"/><path d="M398 88 h22 v10 q0 4 -4 4 h-14 q-4 0 -4 -4 z"/></g>
+      <!-- cables leaving the top -->
+      <g fill="none" stroke="#5fe3ff" stroke-opacity=".6" stroke-linecap="round">
+        <path d="M204 52 C200 30 186 14 176 0" stroke-width="3"/><path d="M216 50 C214 30 206 14 200 0" stroke-width="2.2"/>
+        <path d="M318 50 C322 30 336 14 346 0" stroke-width="3"/><path d="M330 52 C336 32 350 18 362 0" stroke-width="2"/>
+      </g>
+      <g fill="url(#band)" stroke="#bff6ff" stroke-opacity=".7"><path d="M194 44 q0 -6 6 -6 h22 q6 0 6 6 v10 h-34 z"/><path d="M312 44 q0 -6 6 -6 h22 q6 0 6 6 v10 h-34 z"/></g>
+      <!-- base: two tiers -->
+      <path d="M118 554 A152 26 0 0 0 422 554 V570 A152 26 0 0 1 118 570 Z" fill="url(#band)" stroke="#bff6ff" stroke-opacity=".8" class="glow-soft"/>
+      <path d="M100 572 A170 30 0 0 0 440 572 V590 A170 30 0 0 1 100 590 Z" fill="url(#band)" stroke="#bff6ff" stroke-opacity=".7"/>
+      <path d="M100 572 A170 30 0 0 1 440 572" fill="none" stroke="#bff6ff" stroke-opacity=".35"/>
+      <g id="seams" stroke="#bff6ff" stroke-opacity=".4"></g>
+      <g fill="#dffbff" class="glow-soft"><rect x="252" y="614" width="36" height="2" rx="1"/></g>
+      <g id="cables" fill="none" stroke="#8ff0ff" stroke-opacity=".75" stroke-width="1.4" stroke-linecap="round"></g>
+
+      <g id="nodes"></g>
+
+      <!-- ===== ME (three quarter back, reading a note) ===== -->
+      <g class="me hit" id="meBtn" tabindex="0" role="button" aria-label="Chanwoo Kim, open my info">
+        <rect x="650" y="120" width="210" height="450" fill="transparent"/>
+        <ellipse cx="790" cy="560" rx="78" ry="9" fill="#000" opacity=".55"/>
+        <g class="body" stroke="#c8f8ff" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+          <!-- legs + shoes -->
+          <g fill="#05222e">
+            <path d="M752 476 C752 500 750 524 750 546 L768 548 C768 524 770 500 774 478 Z"/>
+            <path d="M800 478 C804 500 808 524 808 547 L826 547 C826 522 824 500 822 476 Z"/>
+            <path d="M746 544 C743 553 746 561 755 563 C763 565 773 563 775 557 C775 551 771 547 768 545 Z"/>
+            <path d="M805 545 C803 554 806 561 815 563 C825 565 836 563 838 557 C836 551 831 547 826 545 Z"/>
+          </g>
+          <g fill="none" stroke-opacity=".45" stroke-width="1"><path d="M760 486 C760 506 759 524 759 540"/><path d="M813 486 C815 506 816 524 817 540"/><path d="M748 556 C756 558 766 558 774 556"/><path d="M806 556 C816 558 828 558 837 556"/></g>
+          <!-- coat body -->
+          <path fill="url(#coatFill)" d="M762 214 C772 209 794 209 806 214 C818 218 828 226 830 240 C834 262 835 300 833 336 C835 380 841 430 847 474 C820 484 760 486 731 476 C733 430 735 380 737 336 C735 300 736 262 740 240 C744 226 752 218 762 214 Z"/>
+          <g fill="none" stroke-opacity=".55" stroke-width="1.1">
+            <path d="M760 216 C774 230 794 230 808 216"/>
+            <path d="M784 230 C784 300 786 380 788 430"/>
+            <path d="M788 430 C789 448 789 464 789 482 M788 430 C793 446 797 462 800 480"/>
+            <path d="M806 244 C800 290 802 330 808 350 M758 244 C764 290 762 326 758 348"/>
+            <path d="M746 384 C744 420 742 450 740 476 M826 384 C830 420 834 450 838 476" stroke-opacity=".35"/>
+          </g>
+          <path fill="#0a3644" d="M766 350 C766 346 768 344 772 344 H808 C812 344 814 346 814 350 V356 C814 360 812 362 808 362 H772 C768 362 766 360 766 356 Z"/>
+          <circle cx="774" cy="353" r="2.2" fill="#c8f8ff" stroke="none"/><circle cx="806" cy="353" r="2.2" fill="#c8f8ff" stroke="none"/>
+          <path fill="none" stroke-opacity=".7" stroke-width="1.1" d="M739 390 C746 388 758 388 766 390 C766 404 765 418 763 430 C756 432 748 432 741 430"/>
+          <!-- right sleeve hanging -->
+          <path fill="url(#coatFill)" d="M816 220 C830 228 836 248 838 270 C840 300 838 330 834 354 C832 364 826 370 818 368 C815 340 814 300 812 268 C810 248 810 232 816 220 Z"/>
+          <path fill="none" stroke-opacity=".45" stroke-width="1" d="M820 300 C826 310 830 318 832 330 M818 356 C824 358 830 358 835 354"/>
+          <path fill="#0a3644" d="M820 368 C818 376 820 384 826 386 C832 386 836 380 834 370 Z"/>
+          <!-- clipboard held up at the left -->
+          <g>
+            <path fill="#062a37" d="M664 254 C664 251 666 249 669 249 L711 241 C714 241 716 243 716 245 L725 291 C725 294 723 296 720 296 L677 304 C674 304 672 302 672 299 Z"/>
+            <path fill="#0d4253" d="M684 244 C684 242 686 240 688 240 L700 238 C702 238 704 239 704 241 L705 247 L685 250 Z"/>
+            <g fill="none" stroke-opacity=".5" stroke-width="1"><path d="M674 262 L712 255 M676 272 L714 265 M678 282 L708 276 M680 292 L716 285"/></g>
+          </g>
+          <!-- left sleeve bent toward the note -->
+          <path fill="url(#coatFill)" d="M752 222 C738 228 730 250 728 276 C726 296 728 312 734 322 C740 327 747 322 748 312 C750 292 752 262 758 238 Z"/>
+          <path fill="url(#coatFill)" d="M734 322 C724 314 716 302 710 290 C708 284 714 280 719 284 C726 294 734 302 746 310 Z"/>
+          <path fill="#0a3644" d="M710 290 C704 288 702 282 706 278 C710 274 718 276 720 282 C722 288 716 292 710 290 Z"/>
+          <!-- neck + head, bowed, turned toward the capsule -->
+          <path fill="#0a3644" d="M770 194 C770 204 768 210 766 216 L800 216 C798 208 796 202 796 192 Z"/>
+          <path fill="#05222e" d="M757 170 C756 150 768 139 782 140 C798 141 807 155 804 172 C802 187 794 197 781 200 C768 202 759 193 757 180 Z"/>
+          <path fill="#0d4253" d="M758 166 C758 148 770 138 784 139 C798 140 808 152 805 170 C803 186 798 196 790 200 C784 198 776 197 770 198 C763 192 759 180 758 166 Z"/>
+          <g fill="none" stroke-opacity=".5" stroke-width="1"><path d="M770 146 C766 160 768 174 772 186 M782 142 C780 160 782 176 786 190 M794 146 C798 160 798 174 794 188 M762 160 C762 172 764 180 768 186"/></g>
+          <path fill="#05222e" d="M760 172 C754 170 752 178 754 184 C756 190 762 190 763 186 Z"/>
+        </g>
+        <g class="tag"><text x="790" y="114" text-anchor="middle">Chanwoo Kim</text><text x="790" y="127" text-anchor="middle" class="tag2">tap for profile</text></g>
+      </g>
+    </svg>
+    <span class="hint">Tap an electrode node · Tap me for my profile</span>
   </main>
 
   <footer class="foot"><span>ckim1210@bu.edu</span><span>© 2026 Chanwoo Kim · Boston, MA</span></footer>
@@ -183,15 +352,150 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   const mk = (tag, a, p) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ===== floor perspective =====
+  const fl = $('floorLines');
+  for (let i = -30; i <= 30; i++) mk('line', { x1: 450 + i * 18, y1: 470, x2: 450 + i * 90, y2: 620 }, fl);
+  [482, 498, 520, 550, 590].forEach(y => mk('line', { x1: -500, y1: y, x2: 1400, y2: y }, fl));
+
+  // ===== human outline (right half, mirrored) =====
+  const CX = 270;
+  const R = [[0,108],[15,110],[24,119],[27,134],[26,150],[22,164],[16,174],[11,180],[11,192],[22,198],[40,203],[54,210],[60,224],[62,244],[63,262],[65,282],[68,300],[72,322],[75,344],[78,358],[84,368],[87,382],[84,396],[78,402],[72,398],[67,388],[63,372],[59,354],[54,330],[50,306],[47,286],[45,262],[42,244],[40,262],[40,282],[36,306],[35,322],[40,344],[44,366],[45,388],[42,414],[37,440],[34,458],[35,476],[33,500],[28,520],[27,532],[33,542],[30,548],[16,548],[10,542],[11,526],[14,504],[16,478],[15,458],[13,436],[10,410],[5,390],[0,386]];
+  const pts = R.map(([dx, y]) => [CX + dx, y]).concat(R.slice(1, -1).reverse().map(([dx, y]) => [CX - dx, y]));
+  function smoothClosed(p) {
+    const n = p.length; let d = `M${p[0][0]} ${p[0][1]}`;
+    for (let i = 0; i < n; i++) {
+      const p0 = p[(i - 1 + n) % n], p1 = p[i], p2 = p[(i + 1) % n], p3 = p[(i + 2) % n];
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0]} ${p2[1]}`;
+    }
+    return d + ' Z';
+  }
+  $('bodyOutline').setAttribute('d', smoothClosed(pts));
+
+  // anatomy detail lines (mirrored)
+  const an = $('anatomy');
+  const both = d => { mk('path', { d }, an); mk('path', { d, transform: `translate(${2 * CX},0) scale(-1,1)` }, an); };
+  both('M262 200 Q246 206 230 210');                      // clavicle
+  both('M266 222 Q250 246 230 236');                      // pectoral
+  both('M226 214 Q220 236 222 256');                      // deltoid
+  both('M262 292 Q258 304 262 312 M262 318 Q258 330 262 338'); // abs
+  both('M236 330 Q244 360 262 384');                      // inguinal
+  both('M262 452 Q257 456 262 462');                      // knee cap
+  both('M236 410 Q240 440 246 452');                      // thigh
+  both('M238 476 Q236 500 244 520');                      // calf
+  both('M208 300 Q206 316 210 330');                      // forearm
+  both('M190 384 L188 400 M194 386 L194 402 M199 386 L200 401 M203 384 L205 397'); // fingers
+  mk('line', { x1: CX, y1: 268, x2: CX, y2: 340 }, an);   // linea alba
+  mk('circle', { cx: CX, cy: 350, r: 1.5 }, an);           // navel
+
+  // ===== nervous system =====
+  const nerves = $('nerves');
+  const path = (d, w, o) => mk('path', { d, 'stroke-width': w, 'stroke-opacity': o }, nerves);
+  // brain
+  path('M252 128 Q250 112 264 108 Q276 104 286 112 Q292 120 288 132 Q284 140 270 140 Q256 140 252 128 Z', 1.1, .9);
+  path('M258 118 Q264 114 268 120 Q272 112 280 118 M256 128 Q262 124 266 130 Q272 124 278 130 Q282 126 286 128 M270 108 Q268 120 270 140', .8, .6);
+  path('M262 140 Q270 148 278 140', .9, .7);
+  // spine with vertebra ticks
+  path('M270 140 L270 380', 1.6, .95);
+  for (let y = 196; y <= 372; y += 8) mk('line', { x1: CX - 3, y1: y, x2: CX + 3, y2: y, 'stroke-width': .8, 'stroke-opacity': .55 }, nerves);
+  // intercostal nerves
+  for (let y = 222; y <= 330; y += 14) {
+    const w = y < 300 ? 34 : 30;
+    path(`M270 ${y} Q${270 + w * .6} ${y - 2} ${270 + w} ${y + 10}`, .7, .45);
+    path(`M270 ${y} Q${270 - w * .6} ${y - 2} ${270 - w} ${y + 10}`, .7, .45);
+  }
+  // limb routes (right side, mirrored for left)
+  const armR = [[270,206],[300,210],[318,226],[322,262],[328,300],[334,334],[340,362],[342,386]];
+  const legR = [[270,378],[284,388],[292,420],[294,452],[292,486],[290,520],[293,540]];
+  const mirror = r => r.map(([x, y]) => [2 * CX - x, y]);
+  const routes = [[[270,140],[270,380]], armR, mirror(armR), legR, mirror(legR)];
+  const pl = r => 'M' + r.map(p => p.join(' ')).join(' L');
+  function twigs(route, side0) {
+    let side = side0;
+    for (let i = 1; i < route.length - 1; i++) {
+      const [x0, y0] = route[i - 1], [x1, y1] = route[i];
+      for (let t = .3; t < 1; t += .35) {
+        const x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+        const nx = -dy / L * side, ny = dx / L * side, len = 7 + Math.random() * 6;
+        path(`M${x.toFixed(1)} ${y.toFixed(1)} q${(nx * len * .6 + dx / L * len * .5).toFixed(1)} ${(ny * len * .6 + dy / L * len * .5).toFixed(1)} ${(nx * len + dx / L * len * .7).toFixed(1)} ${(ny * len + dy / L * len * .7).toFixed(1)}`, .6, .4);
+        side = -side;
+      }
+    }
+  }
+  [armR, mirror(armR), legR, mirror(legR)].forEach((r, i) => { path(pl(r), 1.2, .85); twigs(r, i % 2 ? -1 : 1); });
+  // finger nerves
+  [[342,386],[198,386]].forEach(([x, y]) => { const s = x > CX ? 1 : -1; [-6,-2,2,6].forEach(o => path(`M${x} ${y} l${s * (o * .2 + 1)} ${12 + Math.abs(o) * -.3} l${s * o * .4} 4`, .6, .5)); });
+  // intercostal routes for pulses
+  for (let y = 222; y <= 330; y += 28) { routes.push([[270,y],[300,y + 4]]); routes.push([[270,y],[240,y + 4]]); }
+
+  // organic branching (seeded so it is stable)
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  function grow(x, y, ang, len, depth, w, o) {
+    const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len, bend = (rnd() - .5) * len * .6;
+    const cx = (x + ex) / 2 - Math.sin(ang) * bend, cy = (y + ey) / 2 + Math.cos(ang) * bend;
+    mk('path', { d: `M${x.toFixed(1)} ${y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`, 'stroke-width': w, 'stroke-opacity': o }, nerves);
+    if (depth > 0) { const k = 2; for (let i = 0; i < k; i++) grow(ex, ey, ang + (i ? 1 : -1) * (.25 + rnd() * .35), len * (.55 + rnd() * .2), depth - 1, w * .75, o * .85); }
+  }
+  [armR, mirror(armR), legR, mirror(legR)].forEach((r, ri) => {
+    for (let i = 1; i < r.length; i++) {
+      const [x0, y0] = r[i - 1], [x1, y1] = r[i], a = Math.atan2(y1 - y0, x1 - x0);
+      for (let t = .2; t < 1; t += .4) { const x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, sgn = (Math.floor(t * 10) % 2 ? 1 : -1); grow(x, y, a + sgn * .45, 9 + rnd() * 5, 2, .7, .5); }
+    }
+  });
+  // plexus fans: brachial, lumbar, sacral
+  [[300,212,0.2],[240,212,Math.PI-0.2]].forEach(([x,y,a]) => { for (let i = -2; i <= 2; i++) grow(x, y, a + i * .25, 14, 2, .7, .55); });
+  for (let i = -3; i <= 3; i++) { grow(270, 360, Math.PI / 2 + i * .32, 16, 2, .7, .55); }
+  for (let y = 206; y <= 340; y += 9) { grow(270, y, -.25 + (y % 2) * .1, 18 + (y - 206) * .05, 1, .55, .4); grow(270, y, Math.PI + .25, 18 + (y - 206) * .05, 1, .55, .4); }
+
+  // bolts on the top band and seams on the base
+  const bolts = $('bolts'), seams = $('seams');
+  for (let d = 15; d <= 165; d += 15) { const a = d * Math.PI / 180; mk('circle', { cx: (270 + Math.cos(a) * 150).toFixed(1), cy: (80 + Math.sin(a) * 26).toFixed(1), r: 1.6 }, bolts); }
+  for (let d = 20; d <= 160; d += 20) { const a = d * Math.PI / 180, x = 270 + Math.cos(a) * 170, y = 572 + Math.sin(a) * 30; mk('line', { x1: x.toFixed(1), y1: y.toFixed(1), x2: x.toFixed(1), y2: (y + 18).toFixed(1) }, seams); }
+
+  // ===== nodes (electrodes) =====
   const N = {
-    brain: { code: 'N-01', name: 'Mission', sub: 'Why medical robotics' },
-    heart: { code: 'N-02', name: 'Heart Rate Monitor', sub: 'Wearable for elderly users' },
-    lung:  { code: 'N-03', name: 'Gait Thermodynamics', sub: 'KAIST heat flux sensors' },
-    core:  { code: 'N-04', name: 'Thermal Core', sub: 'Capstone heat recovery' },
-    hand:  { code: 'N-05', name: 'Soft Hands', sub: 'Finger and gripper builds' },
-    eye:   { code: 'N-06', name: 'Mechatronics', sub: 'Autonomous puck launcher' },
-    knee:  { code: 'N-07', name: 'Lower Limb', sub: 'Fracture model and soft leg' }
+    brain: { code: 'N-01', name: 'Mission', sub: 'Why medical robotics', xy: [270,124], side: 'r', post: 404, py: 150 },
+    heart: { code: 'N-02', name: 'Heart Rate Monitor', sub: 'Wearable for elderly users', xy: [283,250], side: 'r', post: 404, py: 196 },
+    core:  { code: 'N-04', name: 'Thermal Core', sub: 'Capstone heat recovery', xy: [270,320], side: 'r', post: 404, py: 310 },
+    hand:  { code: 'N-05', name: 'Soft Hands', sub: 'Finger and gripper builds', xy: [342,384], side: 'r', post: 404, py: 322 },
+    knee:  { code: 'N-07', name: 'Lower Limb', sub: 'Fracture model and soft leg', xy: [294,452], side: 'r', post: 404, py: 436 },
+    eye:   { code: 'N-06', name: 'Mechatronics', sub: 'Autonomous puck launcher', xy: [198,384], side: 'l', post: 136, py: 322 },
+    lung:  { code: 'N-03', name: 'Gait Thermodynamics', sub: 'KAIST heat flux sensors', xy: [247,492], side: 'l', post: 136, py: 456 }
   };
+  const cables = $('cables'), nodesG = $('nodes');
+  Object.entries(N).forEach(([k, n]) => {
+    const [x, y] = n.xy, px = n.post, sag = 12; n.py = y - 24;
+    mk('path', { d: `M${px} ${n.py} C${px + (x - px) * .3} ${n.py + sag} ${x + (px - x) * .3} ${y + sag} ${x} ${y}` }, cables);
+    const g = mk('g', { class: 'node hit' + (k === 'heart' ? ' heart' : ''), tabindex: 0, role: 'button', 'aria-label': n.name, 'data-key': k }, nodesG);
+    const r = n.side === 'r', tx = r ? 440 : 100, ly = k === 'heart' ? y - 8 : y;
+    mk('path', { d: `M${r ? 426 : 114} ${ly} H${tx + (r ? -4 : 4)}`, stroke: '#8ff0ff', 'stroke-opacity': .45, 'stroke-dasharray': '2 3', fill: 'none' }, g);
+    mk('circle', { class: 'ring', cx: x, cy: y, r: 8 }, g);
+    mk('circle', { class: 'core', cx: x, cy: y, r: 6.5 }, g);
+    mk('circle', { class: 'dot', cx: x, cy: y, r: 2.6 }, g);
+    mk('circle', { cx: x, cy: y, r: 16, fill: 'transparent' }, g);
+    const t = mk('text', { x: tx, y: ly + 3.5, 'text-anchor': r ? 'start' : 'end' }, g); t.textContent = n.name;
+    const t2 = mk('text', { x: tx, y: ly + 16, 'text-anchor': r ? 'start' : 'end', class: 'sub' }, g); t2.textContent = n.code;
+    g.addEventListener('click', () => show(k));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(k); } });
+  });
+
+  // ===== pulses along nerve routes =====
+  if (!reduce) {
+    const lens = routes.map(r => { const segs = []; let tot = 0; for (let i = 1; i < r.length; i++) { const l = Math.hypot(r[i][0] - r[i-1][0], r[i][1] - r[i-1][1]); segs.push(l); tot += l; } return { segs, tot }; });
+    const at = (ri, d) => { const r = routes[ri], L = lens[ri]; for (let i = 0; i < L.segs.length; i++) { if (d <= L.segs[i]) { const t = d / L.segs[i]; return [r[i][0] + (r[i+1][0] - r[i][0]) * t, r[i][1] + (r[i+1][1] - r[i][1]) * t]; } d -= L.segs[i]; } return r[r.length - 1]; };
+    const pg = $('pulses');
+    const ps = Array.from({ length: 22 }, () => ({ el: mk('circle', { r: 1.9 }, pg) }));
+    const reset = p => { p.ri = Math.floor(Math.random() * routes.length); p.rev = Math.random() < .35; p.d = 0; p.v = .8 + Math.random() * 1.6; };
+    ps.forEach(p => { reset(p); p.d = Math.random() * lens[p.ri].tot; });
+    (function loop() {
+      ps.forEach(p => {
+        p.d += p.v; const tot = lens[p.ri].tot; if (p.d >= tot) reset(p);
+        const d = p.rev ? lens[p.ri].tot - p.d : p.d, q = at(p.ri, Math.max(0, d)), f = p.d / lens[p.ri].tot;
+        p.el.setAttribute('cx', q[0].toFixed(1)); p.el.setAttribute('cy', q[1].toFixed(1)); p.el.setAttribute('opacity', Math.sin(Math.min(1, f) * Math.PI).toFixed(2));
+      });
+      requestAnimationFrame(loop);
+    })();
+  }
 
   // content
   const ecg = '<svg class="ecg" viewBox="0 0 300 54" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 H60 L70 30 L76 22 L82 30 H96 L102 30 L108 6 L116 50 L122 30 H136 L146 24 L156 30 H200 L210 30 L216 22 L222 30 H236 L242 30 L248 6 L256 50 L262 30 H276 L286 24 L296 30 H300"/></svg>';
@@ -280,7 +584,7 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   const panel = $('panel'), meBtn = $('meBtn');
   function render(c, activeKey, sec) {
     $('pLabel').textContent = c.label; $('pBody').innerHTML = c.html; panel.hidden = false; panel.scrollTop = 0;
-    document.querySelectorAll('#labels .node').forEach(n => n.classList.toggle('active', n.dataset.key === activeKey));
+    document.querySelectorAll('.node').forEach(n => n.classList.toggle('active', n.dataset.key === activeKey));
     meBtn.classList.toggle('active', activeKey === 'me');
     document.querySelectorAll('nav.subs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.sec === sec ? 'true' : 'false'));
     panel.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
@@ -293,322 +597,11 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
   function show(k) { render(C[k], k, k === 'me' ? 'about' : null); }
   function close() { panel.hidden = true; document.querySelectorAll('.node').forEach(n => n.classList.remove('active')); meBtn.classList.remove('active'); document.querySelectorAll('nav.subs button').forEach(b => b.setAttribute('aria-pressed', 'false')); }
   meBtn.addEventListener('click', () => show('me'));
-  document.querySelectorAll('#labels .node').forEach(b => b.addEventListener('click', () => show(b.dataset.key)));
-  window.showNode = show;
+  meBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show('me'); } });
   document.querySelectorAll('nav.subs button').forEach(b => b.addEventListener('click', () => { const c = S[b.dataset.sec](); render(c, b.dataset.sec === 'about' ? 'me' : null, b.dataset.sec); }));
   $('pClose').addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
 })();
-</script>
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-} }
-</script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-
-const host = document.getElementById('three');
-const labels = document.getElementById('labels');
-const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const CYAN = new THREE.Color('#5fe3ff'), ICE = new THREE.Color('#bff6ff');
-
-let renderer;
-try { renderer = new THREE.WebGLRenderer({ antialias: true }); }
-catch (e) { document.getElementById('nogl').hidden = false; throw e; }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-renderer.setClearColor('#03111a');
-host.appendChild(renderer.domElement);
-
-const scene = new THREE.Scene();
-scene.fog = new THREE.Fog('#03111a', 7, 16);
-const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 60);
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; controls.enablePan = false;
-controls.minDistance = 3.2; controls.maxDistance = 9;
-controls.minPolarAngle = 0.9; controls.maxPolarAngle = 1.62;
-controls.minAzimuthAngle = -0.9; controls.maxAzimuthAngle = 0.9;
-controls.target.set(0.95, 1.12, 0);
-
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.7, 0.5, 0.18);
-composer.addPass(bloom);
-
-// ---------- materials ----------
-function holo(color, intensity = 1.4, base = 0.05, power = 2.2) {
-  return new THREE.ShaderMaterial({
-    uniforms: { color: { value: new THREE.Color(color) }, intensity: { value: intensity }, base: { value: base }, power: { value: power } },
-    vertexShader: `varying vec3 vN; varying vec3 vV; void main(){ vN = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.0); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }`,
-    fragmentShader: `uniform vec3 color; uniform float intensity; uniform float base; uniform float power; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), power); float a = f*intensity + base; gl_FragColor = vec4(color*a, a); }`,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
-  });
-}
-const skin = holo('#6fe6ff', 1.7, 0.05, 2.2);
-const coatM = holo('#d4f8ff', 1.1, 0.05, 2.0);
-const darkM = new THREE.MeshBasicMaterial({ color: '#04202b' });
-const lineM = o => new THREE.LineBasicMaterial({ color: CYAN, transparent: true, opacity: o });
-const nerveM = new THREE.LineBasicMaterial({ color: '#9ff3ff', transparent: true, opacity: .95 });
-const twigM = new THREE.LineBasicMaterial({ color: '#7fe9ff', transparent: true, opacity: .55 });
-const metal = new THREE.MeshStandardMaterial({ color: '#0b2a36', metalness: .7, roughness: .35, emissive: '#05202a' });
-scene.add(new THREE.HemisphereLight('#9fe8ff', '#02080c', 1.1));
-const key = new THREE.DirectionalLight('#dff8ff', 1.6); key.position.set(3, 5, 4); scene.add(key);
-
-// ---------- helpers ----------
-const up = new THREE.Vector3(0, 1, 0);
-function limb(a, b, r1, r2, mat, parent) {
-  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), len = d.length();
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(r2, r1, len, 28, 6, true), mat);
-  m.position.copy(A).add(B).multiplyScalar(.5); m.quaternion.setFromUnitVectors(up, d.normalize()); parent.add(m);
-  return m;
-}
-function ball(p, r, mat, parent, s = [1,1,1]) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 28, 20), mat); m.position.set(...p); m.scale.set(...s); parent.add(m); return m; }
-function lathe(profile, mat, parent, zs = .62) { const g = new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 48); const m = new THREE.Mesh(g, mat); m.scale.z = zs; parent.add(m); return m; }
-function line(points, mat, parent) { const g = new THREE.BufferGeometry().setFromPoints(points.map(p => p.isVector3 ? p : new THREE.Vector3(...p))); const l = new THREE.Line(g, mat); parent.add(l); return l; }
-function curve(pts) { return new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p))); }
-function boxEdges(w, h, d, pos, op = .35, parent = scene, fill = true) {
-  const g = new THREE.BoxGeometry(w, h, d);
-  if (fill) { const m = new THREE.Mesh(g, darkM); m.position.set(...pos); parent.add(m); }
-  const e = new THREE.LineSegments(new THREE.EdgesGeometry(g), lineM(op)); e.position.set(...pos); parent.add(e); return e;
-}
-
-// ---------- lab ----------
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: '#041a24', metalness: .4, roughness: .55 }));
-floor.rotation.x = -Math.PI / 2; scene.add(floor);
-const grid = new THREE.GridHelper(40, 80, '#1b5d70', '#0c3442'); grid.position.y = .002; scene.add(grid);
-const wall = new THREE.Mesh(new THREE.PlaneGeometry(40, 8), new THREE.MeshStandardMaterial({ color: '#052230', roughness: .9 })); wall.position.set(0, 4, -3.2); scene.add(wall);
-for (let x = -6; x <= 8; x += 2.2) line([[x, 0, -3.19], [x, 6, -3.19]], lineM(.12), scene);
-line([[-12, 2.6, -3.19], [12, 2.6, -3.19]], lineM(.12), scene);
-// ceiling light strips
-[[-0.2, 3.7, -1], [2.6, 3.7, -1]].forEach(p => { const m = new THREE.Mesh(new THREE.BoxGeometry(1.8, .04, .12), new THREE.MeshBasicMaterial({ color: '#e6fcff' })); m.position.set(...p); scene.add(m); const pl = new THREE.PointLight('#bff6ff', 6, 7); pl.position.set(p[0], 3.4, p[2]); scene.add(pl); });
-// screen texture
-function screenTex(kind) {
-  const c = document.createElement('canvas'); c.width = 512; c.height = 300; const x = c.getContext('2d');
-  x.fillStyle = '#031822'; x.fillRect(0, 0, 512, 300); x.strokeStyle = 'rgba(95,227,255,.15)';
-  for (let i = 1; i < 6; i++) { x.beginPath(); x.moveTo(0, i * 50); x.lineTo(512, i * 50); x.stroke(); }
-  x.strokeStyle = '#a6f3ff'; x.lineWidth = 4; x.beginPath();
-  if (kind === 'step') { x.moveTo(30, 250); x.lineTo(150, 250); x.bezierCurveTo(190, 250, 200, 70, 280, 64); x.lineTo(490, 60); }
-  else { let px = 20; x.moveTo(px, 160); for (let k = 0; k < 4; k++) { x.lineTo(px + 50, 160); x.lineTo(px + 58, 140); x.lineTo(px + 66, 160); x.lineTo(px + 76, 160); x.lineTo(px + 84, 60); x.lineTo(px + 94, 240); x.lineTo(px + 102, 160); px += 118; } }
-  x.stroke(); x.fillStyle = '#7fb3c4'; x.font = '22px monospace'; x.fillText(kind === 'step' ? 'HFS STEP RESPONSE' : 'ECG · 72 BPM', 24, 34);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
-}
-function screen(w, h, pos, rotY, kind) {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: screenTex(kind) })); m.position.set(...pos); m.rotation.y = rotY; scene.add(m);
-  const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(w, h)), lineM(.7)); e.position.copy(m.position); e.rotation.y = rotY; scene.add(e);
-}
-screen(1.5, .88, [1.35, 2.55, -3.15], 0, 'step');
-// bench
-boxEdges(2.6, .06, .8, [3.6, .92, -2.4]); boxEdges(.7, .5, .7, [2.7, .6, -2.4]); [[2.35, -2.75], [4.85, -2.75], [4.85, -2.05]].forEach(([x, z]) => boxEdges(.04, .9, .04, [x, .45, z], .3));
-screen(.62, .38, [4.3, 1.24, -2.55], -0.2, 'ecg'); boxEdges(.04, .26, .04, [4.3, 1.04, -2.55], .4);
-// flasks + microscope on bench
-const flaskG = new THREE.LatheGeometry([[0, 0], [.09, 0], [.09, .02], [.03, .16], [.03, .24], [.035, .25]].map(([r, y]) => new THREE.Vector2(r, y)), 24);
-[[3.1, -2.3], [3.32, -2.5]].forEach(([x, z]) => { const m = new THREE.LineSegments(new THREE.EdgesGeometry(flaskG, 20), lineM(.6)); m.position.set(x, .95, z); scene.add(m); });
-boxEdges(.22, .04, .16, [2.75, .97, -2.3], .5, scene); boxEdges(.05, .32, .05, [2.75, 1.13, -2.38], .5); boxEdges(.06, .18, .06, [2.75, 1.25, -2.28], .5);
-// shelves
-[1.7, 2.05].forEach(y => boxEdges(1.6, .03, .3, [-2.3, y, -3.0], .35));
-[[-2.9, 1.82], [-2.6, 1.8], [-2.2, 1.85], [-1.8, 1.8], [-2.7, 2.16], [-2.1, 2.18], [-1.75, 2.15]].forEach(([x, y], i) => boxEdges(.12 + (i % 3) * .04, .2 + (i % 2) * .08, .12, [x, y, -3.0], .45));
-// rack left
-boxEdges(.7, 2.2, .5, [-3.6, 1.1, -2.6], .3); for (let i = 0; i < 4; i++) boxEdges(.62, .02, .44, [-3.6, .4 + i * .5, -2.6], .2, scene, false);
-
-// ---------- capsule ----------
-const cap = new THREE.Group(); scene.add(cap);
-const R = .78, H0 = .22, H1 = 2.42;
-[[1.0, .1, .05], [.93, .08, .14]].forEach(([r, h, y]) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 64), metal); m.position.y = y; cap.add(m); const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.CylinderGeometry(r, r, h, 64), 30), lineM(.8)); e.position.y = y; cap.add(e); });
-const pad = new THREE.Mesh(new THREE.CircleGeometry(.62, 64), new THREE.MeshBasicMaterial({ color: '#2fb8d8', transparent: true, opacity: .16 })); pad.rotation.x = -Math.PI / 2; pad.position.y = .185; cap.add(pad);
-const padRing = new THREE.Mesh(new THREE.TorusGeometry(.66, .008, 8, 96), new THREE.MeshBasicMaterial({ color: ICE })); padRing.rotation.x = Math.PI / 2; padRing.position.y = .19; cap.add(padRing);
-const glass = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H1 - H0, 64, 1, true), new THREE.MeshPhysicalMaterial({ color: '#9feeff', transparent: true, opacity: .08, roughness: .05, metalness: 0, side: THREE.DoubleSide, depthWrite: false }));
-glass.position.y = (H0 + H1) / 2; cap.add(glass);
-const gEdge = holo('#8ff0ff', .7, 0.0, 3.5); const glassRim = new THREE.Mesh(new THREE.CylinderGeometry(R + .002, R + .002, H1 - H0, 64, 1, true), gEdge); glassRim.position.y = glass.position.y; cap.add(glassRim);
-[H0 + .02, H1 - .02].forEach(y => { const t = new THREE.Mesh(new THREE.TorusGeometry(R + .01, .012, 8, 96), new THREE.MeshBasicMaterial({ color: ICE })); t.rotation.x = Math.PI / 2; t.position.y = y; cap.add(t); });
-[[.86, .12, 2.5], [.8, .05, 2.6]].forEach(([r, h, y]) => { const g = new THREE.CylinderGeometry(r, r, h, 64); const m = new THREE.Mesh(g, metal); m.position.y = y; cap.add(m); const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 30), lineM(.8)); e.position.y = y; cap.add(e); });
-const halo = new THREE.Mesh(new THREE.RingGeometry(.4, .62, 64), new THREE.MeshBasicMaterial({ color: '#8ff0ff', transparent: true, opacity: .25, side: THREE.DoubleSide })); halo.rotation.x = Math.PI / 2; halo.position.y = 2.42; cap.add(halo);
-const posts = [];
-for (let i = 0; i < 4; i++) {
-  const a = Math.PI / 4 + i * Math.PI / 2, x = Math.sin(a) * (R + .06), z = Math.cos(a) * (R + .06);
-  boxEdges(.06, 2.35, .06, [x, 1.32, z], .9, cap); posts.push([x, z]);
-  [.55, 1.35, 2.0].forEach(y => boxEdges(.08, .14, .06, [x * 1.07, y, z * 1.07], .9, cap));
-}
-// cables up from the top
-[[-.3, .1], [-.18, .2], [.25, .05], [.35, -.1]].forEach(([x, z], i) => { const c = curve([[x, 2.62, z], [x * 1.2, 3.1, z], [x * 1.6 - .2 + i * .1, 3.6, z - .2], [x * 2 - .3 + i * .2, 4.2, z - .4]]); cap.add(new THREE.Mesh(new THREE.TubeGeometry(c, 30, .018, 8), metal)); });
-// side cable bundle (front left post)
-{ const [x, z] = posts[3]; const c = curve([[x * 1.08, 2.0, z * 1.08], [x * 1.25, 1.6, z * 1.25], [x * 1.3, 1.0, z * 1.3], [x * 1.25, .5, z * 1.2], [x * 1.1, .2, z * 1.1]]); cap.add(new THREE.Mesh(new THREE.TubeGeometry(c, 40, .014, 8), metal)); }
-const scan = new THREE.Mesh(new THREE.TorusGeometry(R - .01, .004, 6, 96), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .7 })); scan.rotation.x = Math.PI / 2; cap.add(scan);
-
-// ---------- human figure ----------
-const body = new THREE.Group(); body.position.y = .19; cap.add(body);
-ball([0, 1.62, 0], .1, skin, body, [.88, 1.12, .98]);
-limb([0, 1.44, 0], [0, 1.54, 0], .05, .045, skin, body);
-lathe([[0, .9], [.16, .92], [.17, .98], [.155, 1.06], [.14, 1.12], [.15, 1.22], [.17, 1.32], [.185, 1.4], [.17, 1.45], [.08, 1.48], [0, 1.49]], skin, body, .6);
-ball([0, .9, 0], .16, skin, body, [1.05, .55, .7]);
-for (const s of [-1, 1]) {
-  ball([s * .19, 1.41, 0], .055, skin, body);
-  limb([s * .19, 1.41, 0], [s * .29, 1.14, .01], .05, .04, skin, body);
-  limb([s * .29, 1.14, .01], [s * .37, .9, .04], .04, .028, skin, body);
-  const hand = new THREE.Group(); hand.position.set(s * .385, .86, .045); hand.rotation.z = s * .18; body.add(hand);
-  ball([0, 0, 0], .045, skin, hand, [.75, 1, .38]);
-  for (let f = 0; f < 4; f++) limb([s * (-.022 + f * .015), -.035, 0], [s * (-.026 + f * .018), -.1 + Math.abs(f - 1.5) * .012, .005], .009, .006, skin, hand);
-  limb([s * -.03, -.005, .01], [s * -.06, -.05, .03], .01, .007, skin, hand);
-  limb([s * .09, .9, 0], [s * .11, .48, .01], .085, .052, skin, body);
-  limb([s * .11, .48, .01], [s * .12, .08, -.01], .052, .032, skin, body);
-  ball([s * .11, .48, .02], .05, skin, body, [1, 1, .9]);
-  ball([s * .125, .035, .04], .045, skin, body, [.9, .55, 2.2]);
-}
-// nervous system
-const nerves = new THREE.Group(); body.add(nerves); const routes = [];
-const spine = curve([[0, 1.56, -.02], [0, 1.4, -.035], [0, 1.15, -.045], [0, .95, -.03], [0, .88, -.02]]); routes.push(spine);
-nerves.add(new THREE.Mesh(new THREE.TubeGeometry(spine, 60, .006, 6), new THREE.MeshBasicMaterial({ color: '#c8f8ff' })));
-for (let i = 0; i < 26; i++) { const p = spine.getPointAt(.05 + i * .036); line([[p.x - .012, p.y, p.z], [p.x + .012, p.y, p.z]], nerveM, nerves); }
-// brain: random gyri on a sphere
-const brainC = new THREE.Vector3(0, 1.655, 0);
-for (let k = 0; k < 46; k++) {
-  let th = Math.random() * Math.PI * 2, ph = Math.random() * 1.3; const pts = [];
-  for (let s = 0; s < 9; s++) { th += (Math.random() - .5) * .9; ph = Math.min(1.5, Math.max(.05, ph + (Math.random() - .5) * .5)); pts.push(new THREE.Vector3(Math.sin(ph) * Math.cos(th) * .072, Math.cos(ph) * .062, Math.sin(ph) * Math.sin(th) * .08).add(brainC)); }
-  line(new THREE.CatmullRomCurve3(pts).getPoints(24), twigM, nerves);
-}
-line(curve([[0, 1.72, -.08], [0, 1.73, 0], [0, 1.72, .08]]).getPoints(20), nerveM, nerves);
-// intercostal arcs
-for (let y = 1.38; y > 1.0; y -= .045) for (const s of [-1, 1]) { const c = curve([[0, y, -.04], [s * .1, y - .01, -.06], [s * .15, y - .03, .0], [s * .1, y - .05, .07]]); line(c.getPoints(16), twigM, nerves); }
-function branch(c, n = 18, len = .05) {
-  routes.push(c); line(c.getPoints(60), nerveM, nerves);
-  for (let i = 1; i < n; i++) {
-    const t = i / n, p = c.getPointAt(t), tan = c.getTangentAt(t), side = new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).cross(tan).normalize();
-    const q = p.clone().addScaledVector(side, len * (.5 + Math.random())).addScaledVector(tan, len * .6);
-    const mid = p.clone().lerp(q, .5).addScaledVector(side, .01);
-    line(new THREE.QuadraticBezierCurve3(p, mid, q).getPoints(8), twigM, nerves);
-  }
-}
-for (const s of [-1, 1]) {
-  branch(curve([[0, 1.42, -.03], [s * .12, 1.43, 0], [s * .2, 1.39, .01], [s * .29, 1.14, .02], [s * .37, .9, .045], [s * .39, .8, .05]]), 22, .04);
-  branch(curve([[0, .9, -.02], [s * .07, .86, 0], [s * .1, .6, .02], [s * .11, .48, .02], [s * .12, .2, 0], [s * .125, .03, .05]]), 26, .05);
-}
-// ---------- electrodes ----------
-const NODES = {
-  brain: { p: [.085, 1.7, .03], post: 0, side: 'r' },
-  heart: { p: [.06, 1.3, .1], post: 0, side: 'r' },
-  core:  { p: [.0, 1.05, .1], post: 0, side: 'r' },
-  hand:  { p: [.39, .86, .08], post: 0, side: 'r' },
-  knee:  { p: [.11, .5, .07], post: 1, side: 'r' },
-  eye:   { p: [-.39, .86, .08], post: 3, side: 'l' },
-  lung:  { p: [-.12, .28, .05], post: 3, side: 'l' }
-};
-const hits = [], elWorld = {};
-const elMat = new THREE.MeshStandardMaterial({ color: '#103545', metalness: .8, roughness: .3, emissive: '#1d6f85' });
-const elGlow = new THREE.MeshBasicMaterial({ color: '#dffbff' });
-Object.entries(NODES).forEach(([k, n]) => {
-  const g = new THREE.Group(); g.position.set(n.p[0], n.p[1], n.p[2]); body.add(g);
-  const disc = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .012, 24), elMat); disc.rotation.x = Math.PI / 2; g.add(disc);
-  const dot = new THREE.Mesh(new THREE.SphereGeometry(.009, 12, 8), elGlow); dot.position.z = .008; g.add(dot); n.dot = dot;
-  const hit = new THREE.Mesh(new THREE.SphereGeometry(.07, 8, 6), new THREE.MeshBasicMaterial({ visible: false })); hit.userData.key = k; g.add(hit); hits.push(hit);
-  const [px, pz] = posts[n.post], start = new THREE.Vector3(px * 1.07, n.p[1] + .35, pz * 1.07), end = new THREE.Vector3(n.p[0], n.p[1] + .19, n.p[2]);
-  const mid = start.clone().lerp(end, .5); mid.y -= .18;
-  cap.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([start, mid, end]), 40, .006, 6), new THREE.MeshStandardMaterial({ color: '#0c2f3c', emissive: '#1a6377', metalness: .5, roughness: .4 })));
-  elWorld[k] = g;
-});
-
-// ---------- me: back view, reading a note ----------
-const me = new THREE.Group(); me.position.set(2.05, 0, .45); me.rotation.y = Math.PI + .5; scene.add(me);
-lathe([[.0, .62], [.215, .62], [.2, .8], [.18, 1.0], [.17, 1.12], [.19, 1.3], [.205, 1.42], [.16, 1.47], [.07, 1.5], [0, 1.51]], coatM, me, .66);
-for (const s of [-1, 1]) {
-  limb([s * .09, .64, 0], [s * .095, .1, -.01], .068, .058, coatM, me);
-  ball([s * .1, .05, .04], .055, coatM, me, [.95, .62, 1.9]);
-  ball([s * .2, 1.42, -.01], .06, coatM, me);
-  limb([s * .2, 1.42, -.01], [s * .23, 1.16, -.05], .062, .055, coatM, me);
-  limb([s * .23, 1.16, -.05], [s * .1, 1.2, .24], .052, .044, coatM, me);
-  ball([s * .09, 1.21, .26], .035, coatM, me);
-}
-limb([0, 1.5, 0], [0, 1.57, .02], .052, .048, coatM, me);
-const head = ball([0, 1.665, .045], .1, holo('#bff6ff', .9, .03, 2.4), me, [.9, 1.08, 1]); head.rotation.x = .35;
-const hair = new THREE.Mesh(new THREE.SphereGeometry(.112, 32, 24, 0, Math.PI * 2, 0, Math.PI * .66), new THREE.MeshStandardMaterial({ color: '#0b2c38', emissive: '#0a3442', roughness: .9, side: THREE.DoubleSide }));
-hair.position.set(0, 1.675, .035); hair.rotation.x = -.55; hair.scale.set(.9, 1.06, 1); me.add(hair);
-// clipboard
-const cb = new THREE.Group(); cb.position.set(0, 1.24, .3); cb.rotation.x = -.7; me.add(cb);
-boxEdges(.24, .32, .012, [0, 0, 0], .95, cb);
-boxEdges(.08, .03, .02, [0, .16, .005], .95, cb);
-for (let i = 0; i < 5; i++) line([[-.09, .1 - i * .045, .008], [.09 - (i % 2) * .05, .1 - i * .045, .008]], lineM(.6), cb);
-// coat details on the back (local -z faces the camera)
-line([[0, 1.36, -.135], [0, .9, -.13], [0, .63, -.142]], lineM(.7), me);
-boxEdges(.16, .035, .01, [0, 1.06, -.122], .9, me, false);
-line(curve([[-.13, 1.48, -.05], [0, 1.43, -.11], [.13, 1.48, -.05]]).getPoints(16), lineM(.7), me);
-const meHit = new THREE.Mesh(new THREE.BoxGeometry(.6, 1.8, .6), new THREE.MeshBasicMaterial({ visible: false })); meHit.position.y = .9; meHit.userData.key = 'me'; me.add(meHit); hits.push(meHit);
-const shadow = new THREE.Mesh(new THREE.CircleGeometry(.4, 32), new THREE.MeshBasicMaterial({ color: '#000', transparent: true, opacity: .35 })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .004; me.add(shadow);
-
-// ---------- pulses ----------
-const pulses = [];
-if (!reduce) {
-  const pm = new THREE.MeshBasicMaterial({ color: '#ffffff' });
-  for (let i = 0; i < 26; i++) { const m = new THREE.Mesh(new THREE.SphereGeometry(.007, 8, 6), pm); nerves.add(m); pulses.push({ m, c: routes[i % routes.length], t: Math.random(), v: .004 + Math.random() * .006, rev: Math.random() < .4 }); }
-}
-
-// ---------- labels ----------
-const labelEls = {};
-document.querySelectorAll('#labels [data-key]').forEach(el => labelEls[el.dataset.key] = el);
-const v = new THREE.Vector3();
-function placeLabels(w, h) {
-  for (const k in labelEls) {
-    const el = labelEls[k];
-    if (k === 'me') { v.set(0, 1.92, 0); me.localToWorld(v); }
-    else elWorld[k].getWorldPosition(v);
-    v.project(camera);
-    if (v.z > 1) { el.style.visibility = 'hidden'; continue; }
-    el.style.visibility = 'visible';
-    el.style.transform = `translate(${((v.x + 1) / 2 * w).toFixed(1)}px, ${((1 - v.y) / 2 * h).toFixed(1)}px)`;
-  }
-}
-
-// ---------- interaction ----------
-const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
-let downAt = null;
-renderer.domElement.addEventListener('pointerdown', e => downAt = [e.clientX, e.clientY]);
-renderer.domElement.addEventListener('pointerup', e => {
-  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
-  const r = renderer.domElement.getBoundingClientRect();
-  mouse.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(mouse, camera);
-  const hit = ray.intersectObjects(hits, false)[0];
-  if (hit && window.showNode) window.showNode(hit.object.userData.key);
-});
-renderer.domElement.addEventListener('pointermove', e => {
-  const r = renderer.domElement.getBoundingClientRect();
-  mouse.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(mouse, camera);
-  renderer.domElement.style.cursor = ray.intersectObjects(hits, false).length ? 'pointer' : 'grab';
-});
-
-// ---------- sizing ----------
-let W = 1, Hh = 1;
-function resize() {
-  W = host.clientWidth || 1; Hh = host.clientHeight || 1;
-  renderer.setSize(W, Hh); composer.setSize(W, Hh); bloom.setSize(W, Hh);
-  camera.aspect = W / Hh;
-  const narrow = camera.aspect < 1;
-  camera.fov = narrow ? 52 : 38; camera.updateProjectionMatrix();
-  if (!resize.done) { camera.position.set(narrow ? 1.4 : 1.15, 1.45, narrow ? 6.8 : 4.7); resize.done = true; }
-  controls.target.set(narrow ? 1.0 : .95, narrow ? 1.25 : 1.12, 0);
-}
-new ResizeObserver(resize).observe(host); resize();
-
-// ---------- loop ----------
-const clock = new THREE.Clock();
-function frame() {
-  const t = clock.getElapsedTime();
-  if (!reduce) {
-    scan.position.y = H0 + .05 + (Math.sin(t * .6) * .5 + .5) * (H1 - H0 - .1);
-    pulses.forEach(p => { p.t += p.v; if (p.t > 1) { p.t = 0; p.c = routes[Math.floor(Math.random() * routes.length)]; } p.m.position.copy(p.c.getPointAt(p.rev ? 1 - p.t : p.t)); });
-    const beat = 1 + Math.max(0, Math.sin(t * 7.5)) ** 8 * .9; NODES.heart.dot.scale.setScalar(beat);
-    halo.material.opacity = .18 + Math.sin(t * 1.2) * .08;
-  }
-  controls.update();
-  composer.render();
-  placeLabels(W, Hh);
-  requestAnimationFrame(frame);
-}
-frame();
-document.getElementById('loading').hidden = true;
 </script>
 </body>
 </html>

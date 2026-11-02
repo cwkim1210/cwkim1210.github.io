@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chanwoo Kim Projects</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Chanwoo Kim, Mechanical Engineering at Boston University. Soft robotics for prosthetics, rehabilitation and medical devices.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one dark room. Left, a suit storage capsule holding a body with a glowing nervous system; right, Chanwoo in a lab coat holding a note; menu bar top right. Black and one cyan glow only. */
+:root {
+  --black: #ffffff;
+  --panel: rgba(255, 255, 255, 0.97);
+  --line: rgba(27, 42, 51, 0.14);
+  --glow: #0a84b8;
+  --glow-soft: rgba(10, 132, 184, 0.55);
+  --text: #1b2a33;
+  --dim: #6b7c86;
+  --display: "Chakra Petch", "Eurostile", "Arial Narrow", sans-serif;
+  --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: #ffffff; color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.55; overflow: hidden; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
+a { color: var(--glow); text-underline-offset: 3px; }
+
+.room { position: relative; height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px; flex-wrap: wrap;
+  padding-block: 16px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.brand { font-family: var(--display); font-weight: 700; letter-spacing: .2em; text-transform: uppercase; font-size: 14px; color: var(--glow); }
+.brand span { color: var(--dim); text-shadow: none; font-weight: 500; letter-spacing: .14em; font-size: 11px; font-family: var(--mono); margin-left: 10px; }
+nav.subs { display: flex; border: 1px solid var(--line); box-shadow: 0 0 18px rgba(10,132,184,.08) inset; }
+nav.subs button { background: none; border: 0; border-left: 1px solid var(--line); padding: 10px 18px; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+nav.subs button:first-child { border-left: 0; }
+nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); text-shadow: 0 0 8px var(--glow-soft); background: rgba(10,132,184,.05); }
+
+.stage { position: relative; min-height: 0; }
+#scene { width: 100%; height: 100%; display: block; }
+.hint { position: absolute; left: max(20px, env(safe-area-inset-left, 0px)); top: 4px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+.foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 11px; color: var(--dim);
+  padding-block: 12px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); border-top: 1px solid var(--line); }
+
+/* svg pieces */
+.glow-soft { filter: none; }
+.lamp { display: none; }
+.hit { cursor: pointer; }
+.node .ring { fill: none; stroke: #0a84b8; stroke-width: 1; transform-box: fill-box; transform-origin: center; animation: ping 2.6s ease-out infinite; }
+.node .dot { fill: #0a84b8; }
+.node .core { fill: #ffffff; stroke: #1b2a33; stroke-width: 1.5; }
+.node text, .tag text { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; fill: #1b2a33; text-transform: uppercase; paint-order: stroke; stroke: #f3f7f9; stroke-width: 4px; stroke-linejoin: round; }
+.node text.sub, .tag text.tag2 { font-size: 8.5px; fill: #6b7c86; letter-spacing: .18em; }
+.node:hover .core, .node.active .core { fill: #0a84b8; }
+.node:hover text, .node.active text, .me:hover .tag text, .me.active .tag text { fill: #0a84b8; }
+.node.heart .dot { transform-box: fill-box; transform-origin: center; animation: beat 1s ease-in-out infinite; }
+.node:focus, .me:focus { outline: none; }
+.node:focus-visible .core { stroke-width: 3; }
+.me .body { transition: filter .2s; }
+.me:hover .body, .me.active .body, .me:focus-visible .body { filter: drop-shadow(0 0 6px rgba(10,132,184,.45)); }
+.scanring { animation: scan 6s ease-in-out infinite alternate; }
+@keyframes scan { from { transform: translateY(0); } to { transform: translateY(430px); } }
+@keyframes ping { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.6); } 30% { transform: scale(1.1); } 45% { transform: scale(1.4); } }
+@media (prefers-reduced-motion: reduce) { .node .ring, .node.heart .dot, .scanring { animation: none; } }
+
+/* info panel */
+.panel { position: absolute; top: 12px; right: max(20px, env(safe-area-inset-right, 0px)); bottom: 12px; width: min(400px, calc(100% - 40px)); overflow: auto; z-index: 5;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: 0 0 30px rgba(10,132,184,.12), inset 0 0 40px rgba(10,132,184,.04);
+  padding: 20px 22px 24px; backdrop-filter: blur(6px); }
+.ph { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.label { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--glow); }
+.close { background: none; border: 1px solid var(--line); color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; padding: 5px 10px; cursor: pointer; text-transform: uppercase; }
+.close:hover { color: var(--glow); border-color: var(--glow); }
+.panel h2 { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.12; margin: 6px 0 10px; color: #1b2a33; text-wrap: balance; }
+.panel h3 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 4px 0 6px; color: #1b2a33; }
+.panel p { margin: 0 0 12px; }
+.panel ul.pts { margin: 0 0 14px; padding-left: 18px; }
+.panel ul.pts li { margin-bottom: 6px; }
+.st { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); border: 1px solid var(--line); padding: 2px 8px; display: inline-block; }
+.st.live { color: var(--glow); border-color: var(--glow-soft); }
+.med { font-size: 14px; color: var(--dim); border-left: 2px solid var(--glow); padding-left: 10px; margin: 0 0 14px; }
+.med b { display: block; color: var(--glow); font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; }
+.specs { display: flex; flex-wrap: wrap; gap: 6px; }
+.specs span { font-family: var(--mono); font-size: 11px; color: var(--dim); border: 1px solid var(--line); padding: 3px 8px; }
+.sub { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
+.kv { display: grid; gap: 0; margin: 0 0 14px; border-top: 1px solid var(--line); }
+.kv div { display: grid; grid-template-columns: 90px minmax(0,1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.kv dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding-top: 2px; }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.list { list-style: none; margin: 8px 0 0; padding: 0; }
+.list button { width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 11px 2px; cursor: pointer; display: grid; grid-template-columns: 46px minmax(0,1fr) auto; gap: 10px; align-items: baseline; }
+.list button:hover { background: rgba(10,132,184,.05); }
+.list .c { font-family: var(--mono); font-size: 11px; color: var(--glow); }
+.list .t { font-family: var(--display); font-weight: 600; font-size: 16px; color: #1b2a33; }
+.list .s { display: block; font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--dim); }
+.list .a { color: var(--dim); font-family: var(--mono); }
+.demo, .ecg { border: 1px solid var(--line); background: #f4f8fa; margin: 0 0 14px; }
+.demo { padding: 10px; }
+.demo svg { width: 100%; height: auto; display: block; }
+.demo .row { display: flex; align-items: center; gap: 10px; }
+.demo label { font-family: var(--mono); font-size: 10.5px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+.demo input { flex: 1; min-width: 0; accent-color: var(--glow); }
+.demo output { font-family: var(--mono); font-size: 12px; color: var(--glow); font-variant-numeric: tabular-nums; min-width: 84px; text-align: right; }
+.ecg { width: 100%; height: 54px; display: block; }
+.ecg path { fill: none; stroke: var(--glow); stroke-width: 1.6; stroke-dasharray: 900; animation: trace 2.4s linear infinite; filter: drop-shadow(0 0 3px var(--glow)); }
+@keyframes trace { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .ecg path { animation: none; stroke-dasharray: none; } }
+
+@media (max-width: 760px) {
+  nav.subs button { padding: 9px 11px; font-size: 11px; letter-spacing: .08em; }
+  .panel { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 72%; border-width: 1px 0 0;
+    padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .hint { font-size: 10px; letter-spacing: .06em; }
+}
+
+/* ===== readable portfolio layout (overrides) ===== */
+html, body { height: auto; }
+body { overflow-x: hidden; overflow-y: auto; font-size: 16px; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.room { display: block; height: auto; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 11; background: #fff; }
+.brand { text-decoration: none; }
+nav.subs { border: 0; box-shadow: none; gap: 4px; }
+nav.subs a { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); text-decoration: none; padding: 8px 12px; }
+nav.subs a:hover { color: var(--glow); }
+.wrapx { max-width: 1200px; margin: 0 auto; }
+.hero, .sec, .foot { max-width: 1200px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.hero { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr); gap: 24px 40px; align-items: center; padding-block: 40px 24px; }
+@media (max-width: 920px) { .hero { grid-template-columns: minmax(0,1fr); } }
+.eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--glow); }
+.intro h1 { font-family: var(--display); font-weight: 700; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.05; margin: 12px 0 16px; color: #111c22; text-wrap: balance; }
+.lede { font-size: 17.5px; max-width: 54ch; margin: 0 0 22px; color: #34444d; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.btn { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; padding: 10px 16px; border: 1px solid #1b2a33; color: #1b2a33; text-decoration: none; border-radius: 2px; }
+.btn.primary { background: #1b2a33; color: #fff; }
+.btn.primary:hover { background: var(--glow); border-color: var(--glow); }
+.btn:hover { border-color: var(--glow); color: var(--glow); }
+.btn.primary:hover { color: #fff; }
+.btn.ghost { border-color: var(--line); color: var(--dim); user-select: all; }
+.quick { margin: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.quick div { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.quick dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding-top: 2px; }
+.quick dd { margin: 0; font-size: 15px; }
+.stage { position: relative; min-height: 0; }
+#scene { width: 100%; height: auto; aspect-ratio: 960 / 620; display: block; }
+.hint { position: static; transform: none; display: block; text-align: center; margin-top: 6px; }
+.sec { padding-block: 64px; border-top: 1px solid var(--line); }
+.sec-head { margin-bottom: 28px; }
+.sec-head h2 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 3vw, 36px); margin: 8px 0 0; color: #111c22; text-wrap: balance; }
+.featured { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 980px) { .featured { grid-template-columns: minmax(0,1fr); } }
+.fcard { border: 1px solid var(--line); background: #fff; padding: 20px; display: flex; flex-direction: column; gap: 12px; border-radius: 4px; transition: border-color .2s, box-shadow .2s; }
+.fcard:hover { border-color: rgba(10,132,184,.5); box-shadow: 0 8px 28px rgba(27,42,51,.07); }
+.art { background: #f4f8fa; border: 1px solid var(--line); border-radius: 3px; padding: 10px; }
+.art svg { width: 100%; height: auto; display: block; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: .04em; }
+.meta .ok { color: var(--glow); font-weight: 500; }
+.fcard h3 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.2; margin: 0; color: #111c22; }
+.prr { margin: 0; display: grid; gap: 10px; }
+.prr dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--glow); }
+.prr dd { margin: 2px 0 0; font-size: 15px; color: #34444d; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.tags span { font-family: var(--mono); font-size: 11px; color: var(--dim); background: #f1f5f7; padding: 3px 8px; border-radius: 2px; }
+.more { align-self: flex-start; background: none; border: 0; padding: 4px 0; cursor: pointer; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--glow); }
+.more:hover { text-decoration: underline; }
+.subhead { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); font-weight: 500; margin: 40px 0 14px; }
+.more-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+@media (max-width: 980px) { .more-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 540px) { .more-grid { grid-template-columns: minmax(0,1fr); } }
+.mcard { text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; font: inherit; color: inherit; }
+.mcard:hover { border-color: rgba(10,132,184,.5); }
+.mcard .m-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--dim); }
+.mcard strong { font-family: var(--display); font-weight: 600; font-size: 17px; color: #111c22; }
+.mcard span:last-child { font-size: 14.5px; color: #34444d; }
+.timeline { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+.timeline li { position: relative; display: grid; grid-template-columns: 170px minmax(0,1fr); gap: 4px 24px; padding: 0 0 28px 24px; }
+.timeline li::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid var(--glow); }
+.timeline .when { font-family: var(--mono); font-size: 12px; color: var(--dim); padding-top: 2px; }
+.timeline strong { font-family: var(--display); font-weight: 600; font-size: 18px; display: block; color: #111c22; }
+.timeline .org { display: block; color: var(--glow); font-size: 14.5px; }
+.timeline p { margin: 4px 0 0; color: #34444d; max-width: 66ch; }
+@media (max-width: 620px) { .timeline li { grid-template-columns: minmax(0,1fr); } }
+.skills { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 20px; }
+@media (max-width: 900px) { .skills { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 520px) { .skills { grid-template-columns: minmax(0,1fr); } }
+.skills h3 { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--glow); font-weight: 500; margin: 0 0 8px; }
+.skills p { margin: 0; color: #34444d; }
+.edu { margin-top: 36px; padding-top: 20px; border-top: 1px dashed var(--line); }
+.edu p { margin: 8px 0 0; max-width: 80ch; color: #34444d; }
+.small { font-size: 12.5px; color: var(--dim); }
+.kv.wide { max-width: 640px; }
+.foot { border-top: 1px solid var(--line); padding-block: 20px 32px; }
+.panel { position: fixed; top: 76px; bottom: 16px; box-shadow: 0 20px 60px rgba(27,42,51,.18); }
+@media (max-width: 760px) { .panel { top: auto; bottom: 0; } }
+
+/* full screen interactive hero */
+.hero-full { position: relative; height: calc(100vh - 58px); height: calc(100svh - 58px); min-height: 520px; background: #ffffff; border-bottom: 1px solid var(--line); }
+.stage.full { position: absolute; inset: 78px 0 36px 0; overflow: hidden; }
+.stage.full #scene { width: 100%; height: 100%; aspect-ratio: auto; }
+.overlay-title { position: absolute; top: 16px; left: max(20px, env(safe-area-inset-left, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 16px; pointer-events: none; }
+.overlay-title .eyebrow { flex-basis: 100%; }
+.overlay-title strong { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 2.4vw, 32px); color: #111c22; line-height: 1.1; }
+.hint2 { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--dim); }
+.scroll-cue { position: absolute; right: max(20px, env(safe-area-inset-right, 0px)); bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--glow); background: rgba(255,255,255,.85); padding: 6px 12px; border-radius: 20px; }
+.scroll-cue .chev { font-size: 16px; animation: bob 1.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .scroll-cue .chev { animation: none; } }
+.about { display: grid; }
+.about .intro { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px 48px; align-items: start; }
+.about .intro > .eyebrow, .about .intro > h1, .about .intro > .lede, .about .intro > .cta { grid-column: 1; }
+.about .intro > .quick { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
+@media (max-width: 860px) { .about .intro { grid-template-columns: minmax(0,1fr); } .about .intro > .quick { grid-column: 1; grid-row: auto; } }
+@media (max-aspect-ratio: 1/1) {
+  .hero-full { height: auto; min-height: 0; padding-top: 96px; padding-bottom: 56px; }
+  .stage.full { position: relative; inset: auto; }
+  .stage.full #scene { height: auto; aspect-ratio: 960 / 620; }
+}
+
+/* campaign map zoom */
+#scene .node, #scene .me { transition: opacity .5s ease; }
+#scene.focused .node:not(.active), #scene.focused .me:not(.active) { opacity: .22; }
+#scene.focused #cables { opacity: .35; transition: opacity .5s; }
+#scene .node:hover .core { transform-box: fill-box; transform-origin: center; }
+#reticle { transition: opacity .4s ease .5s; pointer-events: none; }
+.ret-spin { display: none; }
+.ret-ring { stroke-dasharray: none !important; stroke-opacity: .5 !important; }
+@keyframes retspin { to { transform: rotate(360deg); } }
+.hero-full .overlay-title, .hero-full .scroll-cue { transition: opacity .4s ease; }
+.hero-full.zoomed .overlay-title, .hero-full.zoomed .scroll-cue { opacity: 0; pointer-events: none; }
+.back-map { position: absolute; top: 18px; left: max(20px, env(safe-area-inset-left, 0px)); z-index: 4; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; background: #fff; color: #1b2a33; border: 1px solid #1b2a33; padding: 9px 14px; cursor: pointer; border-radius: 2px; }
+.back-map:hover { background: #1b2a33; color: #fff; }
+.panel:not([hidden]) { animation: brief .5s cubic-bezier(.2,.8,.2,1) .25s both; }
+@keyframes brief { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@media (max-width: 760px) { @keyframes brief { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } } }
+@media (prefers-reduced-motion: reduce) { .ret-spin, .ret-ring { animation: none; } .panel:not([hidden]) { animation: none; } }
+.panel .ph .label::before { content: "Briefing · "; color: var(--dim); }
+
+/* ===== project panel (professional) ===== */
+.panel { border: 1px solid var(--line); border-radius: 8px; padding: 0 0 20px; background: #fff; box-shadow: 0 24px 60px rgba(27,42,51,.14); }
+.panel .ph { margin: 0; padding: 16px 22px 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 2; background: #fff; }
+.panel .ph .label { color: var(--dim); letter-spacing: .12em; }
+.panel .ph .label::before { content: none; }
+.panel .close { border-radius: 4px; }
+#pBody { padding: 18px 22px 0; }
+.panel h2 { font-family: var(--display); font-size: 25px; letter-spacing: 0; text-transform: none; color: #111c22; }
+.panel .st, .panel .st.live { border-radius: 3px; }
+.brief-actions { display: flex; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.ba { flex: 1; font-family: var(--body); font-size: 14px; font-weight: 500; padding: 10px 12px; cursor: pointer; background: #fff; color: #1b2a33; border: 1px solid rgba(27,42,51,.25); border-radius: 6px; }
+.ba:hover { border-color: #1b2a33; }
+.ba.go { background: #1b2a33; border-color: #1b2a33; color: #fff; }
+.ba.go:hover { background: #0a84b8; border-color: #0a84b8; }
+.back-map { border-radius: 6px; border-color: rgba(27,42,51,.25); font-family: var(--body); font-size: 14px; letter-spacing: 0; text-transform: none; font-weight: 500; }
+.back-map:hover { background: #1b2a33; border-color: #1b2a33; }
+.scroll-cue { border: 1px solid var(--line); }
+
+/* all projects list */
+.sec-sub { margin: 8px 0 0; color: var(--dim); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+.filters .f { font: inherit; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(27,42,51,.2); background: #fff; color: #1b2a33; cursor: pointer; }
+.filters .f span { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-left: 4px; }
+.filters .f.on { background: #1b2a33; border-color: #1b2a33; color: #fff; }
+.filters .f.on span { color: #9fb6c0; }
+.plist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 900px) { .plist { grid-template-columns: minmax(0, 1fr); } }
+.proj { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; display: flex; flex-direction: column; transition: border-color .2s, box-shadow .2s; }
+.proj:hover { border-color: rgba(10,132,184,.45); box-shadow: 0 10px 30px rgba(27,42,51,.07); }
+.proj .art { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: #f4f8fa; padding: 14px 20px; }
+.proj .art svg { max-height: 120px; }
+.pbody { padding: 18px 20px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.proj h3 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.2; margin: 0; color: #111c22; }
+.badge { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; padding: 1px 7px; border-radius: 3px; background: #eef3f6; color: var(--dim); }
+.badge.ok { background: #e3f2f9; color: #0a84b8; }
+.badge.wip { background: #fff3df; color: #a36400; }
+.badge.plan { background: #f0eefb; color: #5b4fb5; }
+.pfoot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.pfoot .tags { margin: 0; }
+.jump { background: none; border: 0; padding: 4px 0; cursor: pointer; font-family: var(--mono); font-size: 12px; color: #0a84b8; white-space: nowrap; }
+.jump:hover { text-decoration: underline; }
+.backlink { display: inline-block; margin-bottom: 18px; font-family: var(--mono); font-size: 12px; color: var(--dim); text-decoration: none; }
+.backlink:hover { color: #0a84b8; }
+nav.subs a[aria-current=page] { color: #0a84b8; }
+#all { border-top: 0; padding-top: 40px; }
+.proj { scroll-margin-top: 80px; }
+.proj.flash { animation: flash 2s ease; }
+@keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px rgba(10,132,184,.45); } 100% { box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<div class="room">
+  <header class="top">
+    <a class="brand" href="./">Chanwoo Kim<span>ME · BU 2027</span></a>
+    <nav class="subs" aria-label="Sections">
+      <a href="./">Overview</a><a href="projects.html" aria-current="page">Projects</a><a href="./#about">About</a><a href="./#experience">Experience</a><a href="./#contact">Contact</a>
+    </nav>
+  </header>
+  <section class="sec" id="all">
+    <div class="sec-head"><a class="backlink" href="./">← Main page</a><span class="eyebrow">Projects</span><h2>Everything I have built</h2><p class="sec-sub">Ten projects across research, coursework and design. Each one also appears on the interactive figure on the main page.</p></div>
+    <nav class="filters" aria-label="Filter projects">
+      <button type="button" class="f on" data-f="all">All <span>10</span></button>
+      <button type="button" class="f" data-f="research">Research <span>4</span></button>
+      <button type="button" class="f" data-f="course">Course &amp; design <span>4</span></button>
+      <button type="button" class="f" data-f="next">In progress &amp; planned <span>3</span></button>
+    </nav>
+
+    <div class="plist">
+
+      <article id="p-finger" class="proj" data-cat="research">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><rect x="16" y="36" width="26" height="40" fill="none" stroke="#1b2a33"/><g transform="translate(42,56)" fill="#fff" stroke="#1b2a33" stroke-width="1.4"><rect x="0" y="-10" width="80" height="20" rx="4"/><g transform="translate(88,0) rotate(28)"><ellipse rx="9" ry="11" fill="#d7eef7" stroke="#0a84b8"/><rect x="8" y="-9" width="64" height="18" rx="4"/><g transform="translate(80,0) rotate(34)"><ellipse rx="8" ry="10" fill="#d7eef7" stroke="#0a84b8"/><path d="M7 -8 H46 Q56 -8 56 0 Q56 8 46 8 H7 Z"/></g></g></g></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>May 2026 to present</span><span>Frumkin Lab, BU</span><span class="badge ok">Built</span></div>
+          <h3>Two-Joint Hybrid Soft Finger</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>Soft actuators are safe to touch but weak; rigid ones are strong but unsafe around people.</dd></div>
+            <div><dt>What I did</dt><dd>Fabricated a two-joint finger by fluidic shaping, a process that uses capillary self-organization of liquids under neutral buoyancy, joining 3D printed rigid bones with elastomer joints.</dd></div>
+            <div><dt>Result</dt><dd>A working actuator that bends at the soft joints while the bones hold their shape, combining compliance and strength.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Fluidic shaping</span><span>Elastomer</span><span>3D printing</span><span>Pneumatics</span></div><a class="jump" href="./#n-hand">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-gripper" class="proj" data-cat="research">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><g fill="#fff" stroke="#1b2a33" stroke-width="1.4"><rect x="20" y="20" width="60" height="20" rx="3"/><rect x="20" y="80" width="60" height="20" rx="3"/><rect x="132" y="20" width="70" height="20" rx="3"/><rect x="132" y="80" width="70" height="20" rx="3"/></g><g fill="#d7eef7" stroke="#0a84b8" stroke-width="1.4"><rect x="82" y="16" width="48" height="28" rx="3"/><rect x="82" y="76" width="48" height="28" rx="3"/></g><g stroke="#0a84b8" stroke-opacity=".6"><line x1="90" y1="16" x2="90" y2="44"/><line x1="98" y1="16" x2="98" y2="44"/><line x1="106" y1="16" x2="106" y2="44"/><line x1="114" y1="16" x2="114" y2="44"/><line x1="122" y1="16" x2="122" y2="44"/><line x1="90" y1="76" x2="90" y2="104"/><line x1="98" y1="76" x2="98" y2="104"/><line x1="106" y1="76" x2="106" y2="104"/><line x1="114" y1="76" x2="114" y2="104"/><line x1="122" y1="76" x2="122" y2="104"/></g><circle cx="250" cy="60" r="18" fill="none" stroke="#1b2a33" stroke-dasharray="4 4"/><text x="250" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7c86">drop stitch joint</text></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>2026</span><span>Frumkin Lab, BU</span><span class="badge wip">In development</span></div>
+          <h3>Variable Stiffness Soft Gripper</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>A gripper that is gentle on contact usually cannot hold firmly under load.</dd></div>
+            <div><dt>What I did</dt><dd>Designing fiber-integrated joints from PVC drop stitch fabric: compliant when vented, stiff when inflated. Developed an airtight edge seal with a PVC coated polyester strip and vinyl cement.</dd></div>
+            <div><dt>Result</dt><dd>Joint material and sealing method selected; gripper design in progress.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Drop stitch fabric</span><span>Pneumatics</span><span>Variable stiffness</span></div><a class="jump" href="./#n-hand">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-hfs" class="proj" data-cat="research">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><g fill="none" stroke="#1b2a33" stroke-opacity=".15"><line x1="20" y1="100" x2="290" y2="100"/><line x1="20" y1="14" x2="20" y2="100"/></g><path d="M22 98 H90 C110 98 112 30 150 24 S220 20 286 20" fill="none" stroke="#0a84b8" stroke-width="2.2"/><path d="M22 98 H90 C130 98 150 52 190 40 S250 32 286 31" fill="none" stroke="#1b2a33" stroke-opacity=".5" stroke-dasharray="4 4" stroke-width="1.5"/><text x="286" y="14" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7c86">heat flux (solid) vs temperature (dashed)</text></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>Jun to Aug 2025</span><span>Biomechanics Lab, KAIST</span><span class="badge ok">Validated</span></div>
+          <h3>Heat Flux Sensors for Human Gait</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>The lab needed proof that its wearable heat flux sensors were fast and accurate enough for walking trials.</dd></div>
+            <div><dt>What I did</dt><dd>Proposed and built a PID controlled Peltier cold plate (driving circuit, custom PCB, LabVIEW). Found a confounding variable in conduction based control and pivoted to step input system identification at skin temperature. Set up Vicon motion capture and helped with force plates and human subject trials.</dd></div>
+            <div><dt>Result</dt><dd>Showed the heat flux sensor responds much faster than the temperature sensor, validating it for gait trials; contributed to a master's thesis on lower limb heat flux.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>System ID</span><span>PID</span><span>PCB</span><span>LabVIEW</span><span>Vicon</span></div><a class="jump" href="./#n-lung">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-brackets" class="proj" data-cat="research">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><path d="M40 100 V70 H90 V40 H140 L170 20 H230 V50 L200 70 V100 Z" fill="#fff" stroke="#1b2a33" stroke-width="1.4"/><g fill="none" stroke="#0a84b8" stroke-width="1.2"><path d="M60 100 L90 70 L120 100 M120 100 L140 70 L170 100 M90 70 L140 70 M140 70 L170 40 L200 70 M170 40 L200 40"/></g><circle cx="215" cy="35" r="6" fill="none" stroke="#1b2a33"/><circle cx="60" cy="85" r="6" fill="none" stroke="#1b2a33"/></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>2026</span><span>Frumkin Lab, BU</span><span class="badge">Lab work</span></div>
+          <h3>Topology Optimized Brackets</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>Topology optimized parts have complex organic shapes that are hard to make with conventional methods.</dd></div>
+            <div><dt>What I did</dt><dd>Assisted in fabricating brackets by fluidic shaping.</dd></div>
+            <div><dt>Result</dt><dd>Hands on experience with the lab's core manufacturing process, later used for my own actuators.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Fluidic shaping</span><span>Topology optimization</span></div></div>
+        </div>
+      </article>
+
+      <article id="p-heart" class="proj" data-cat="course">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><path d="M10 64 H70 L80 64 L88 52 L96 64 H112 L120 64 L130 18 L142 104 L152 64 H170 L184 54 L198 64 H290" fill="none" stroke="#0a84b8" stroke-width="2.2" stroke-linejoin="round"/><g fill="none" stroke="#1b2a33" stroke-opacity=".15"><line x1="10" y1="30" x2="290" y2="30"/><line x1="10" y1="98" x2="290" y2="98"/></g></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>May 2025</span><span>Course project</span><span class="badge ok">1st place</span></div>
+          <h3>Wearable Heart Rate Monitor</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>Elderly users need a heart rate alert that keeps working while they move.</dd></div>
+            <div><dt>What I did</dt><dd>Designed an Arduino Nano device with dual pulse sensors averaged for motion noise tolerance, plus visual, auditory and haptic alerts. Built it rechargeable in a laser cut enclosure and fixed power instability with an independent servo supply.</dd></div>
+            <div><dt>Result</dt><dd>First place in the course wide competition; selected for display in the College of Engineering Hall.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Arduino</span><span>Pulse sensors</span><span>Signal averaging</span><span>Laser cutting</span></div><a class="jump" href="./#n-heart">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-puck" class="proj" data-cat="course">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><rect x="40" y="14" width="220" height="92" rx="3" fill="none" stroke="#1b2a33" stroke-width="1.4"/><g stroke="#1b2a33" stroke-opacity=".5"><line x1="40" y1="34" x2="260" y2="34"/><line x1="40" y1="86" x2="260" y2="86"/></g><rect x="130" y="28" width="22" height="64" fill="#fff" stroke="#1b2a33" stroke-width="1.4"/><rect x="132" y="50" width="18" height="16" fill="#d7eef7" stroke="#0a84b8"/><circle cx="210" cy="70" r="9" fill="#0a84b8" fill-opacity=".25" stroke="#0a84b8"/><path d="M262 20 L282 10 L282 26 Z" fill="none" stroke="#1b2a33"/><path d="M152 58 L200 70" stroke="#0a84b8" stroke-dasharray="3 3"/></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>Dec 2025</span><span>Mechatronics course</span><span class="badge ok">Built</span></div>
+          <h3>Autonomous Puck Launching Game</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>Find pucks anywhere on a table, retrieve them and launch them without human input.</dd></div>
+            <div><dt>What I did</dt><dd>Designed a 2.5 DOF Cartesian system with three stepper driven belt linear stages and a servo driven push pull mechanism that grabs, tensions and launches. Wrote a MATLAB vision system with camera calibration to detect and localize pucks, integrated with G-code control.</dd></div>
+            <div><dt>Result</dt><dd>Fully autonomous retrieval and launch loop from camera to motion.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Stepper control</span><span>MATLAB vision</span><span>G-code</span><span>Camera calibration</span></div><a class="jump" href="./#n-eye">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-fracture" class="proj" data-cat="course">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><g fill="none" stroke="#1b2a33" stroke-width="1.4"><circle cx="120" cy="16" r="5"/><line x1="120" y1="21" x2="132" y2="56"/><circle cx="132" cy="60" r="5"/><path d="M134 65 Q140 84 130 104"/><line x1="110" y1="108" x2="160" y2="108"/></g><path d="M136 60 l8 4 l-8 4 l8 4 l-8 4" fill="none" stroke="#0a84b8" stroke-width="1.4"/><g stroke="#0a84b8" stroke-dasharray="3 3"><line x1="70" y1="16" x2="70" y2="108"/></g><text x="64" y="64" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7c86">h crit</text><text x="190" y="64" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7c86">tibia buckling</text></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>Fall 2026</span><span>ME500 Applied Mathematical Modeling</span><span class="badge">Report</span></div>
+          <h3>Critical Fall Height for Leg Fracture</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>From what height can a person land on both feet before a leg bone reaches its fracture criterion?</dd></div>
+            <div><dt>What I did</dt><dd>Modeled the knee as a spring damper two bar linkage and the tibia as an Euler buckling column. A separate estimation study found the minimum velocity for a disk to skip on water at a given impact angle, using dimensional analysis and impulse momentum scaling.</dd></div>
+            <div><dt>Result</dt><dd>A closed form estimate of critical fall height, written up in LaTeX.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Modeling</span><span>Biomechanics</span><span>Dimensional analysis</span><span>LaTeX</span></div><a class="jump" href="./#n-knee">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-capstone" class="proj" data-cat="course next">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><rect x="20" y="30" width="60" height="60" rx="3" fill="#fff" stroke="#1b2a33" stroke-width="1.4"/><g stroke="#1b2a33" stroke-opacity=".4"><line x1="28" y1="42" x2="72" y2="42"/><line x1="28" y1="54" x2="72" y2="54"/><line x1="28" y1="66" x2="72" y2="66"/><line x1="28" y1="78" x2="72" y2="78"/></g><path d="M80 48 H120 l6 -8 l6 16 l6 -16 l6 16 l6 -16 l6 8 H200" fill="none" stroke="#0a84b8" stroke-width="1.6"/><path d="M200 72 H80" fill="none" stroke="#1b2a33" stroke-width="1.4"/><rect x="200" y="30" width="70" height="60" rx="8" fill="#d7eef7" stroke="#0a84b8" stroke-width="1.4"/><g fill="#0a84b8" fill-opacity=".5"><circle cx="220" cy="70" r="3"/><circle cx="236" cy="60" r="2"/><circle cx="250" cy="72" r="3"/><circle cx="244" cy="48" r="2"/></g><text x="50" y="108" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7c86">servers</text><text x="235" y="108" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7c86">treatment chamber</text></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>Sep 2026 to present</span><span>Senior Design · Prof. McDaniel</span><span class="badge wip">In progress</span></div>
+          <h3>Data Center Waste Heat Recovery</h3>
+          <dl class="prr">
+            <div><dt>Problem</dt><dd>Hyperscale data centers reject large amounts of low grade heat that goes unused.</dd></div>
+            <div><dt>What I am doing</dt><dd>Six person team designing water to water heat exchange that warms a treatment chamber where a yeast and water mixture produces gas the team collects. Currently defining requirements and evaluating concepts on a $600 budget.</dd></div>
+            <div><dt>Status</dt><dd>Concept phase, Senior Design 1.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Heat exchange</span><span>Thermal systems</span><span>Team of 6</span></div><a class="jump" href="./#n-core">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-3finger" class="proj" data-cat="next">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><g fill="#fff" stroke="#1b2a33" stroke-width="1.4"><rect x="120" y="10" width="60" height="16" rx="4"/></g><g fill="none" stroke="#0a84b8" stroke-width="10" stroke-linecap="round" opacity=".35"><path d="M130 30 Q110 70 124 104"/><path d="M150 30 Q150 70 150 106"/><path d="M170 30 Q190 70 176 104"/></g><g fill="none" stroke="#1b2a33" stroke-width="1.4"><path d="M130 30 Q110 70 124 104"/><path d="M150 30 Q150 70 150 106"/><path d="M170 30 Q190 70 176 104"/></g></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>Planned</span><span>Frumkin Lab, BU</span><span class="badge plan">Planned</span></div>
+          <h3>Three-Finger Silicone Gripper</h3>
+          <dl class="prr">
+            <div><dt>Goal</dt><dd>Reproduce the open OptoLAB three-finger gripper (University of Novi Sad) as a baseline for silicone actuators.</dd></div>
+            <div><dt>Plan</dt><dd>Cast Ecoflex 00-30 in 3D printed molds and drive the fingers with a syringe pump.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>Ecoflex 00-30</span><span>Mold design</span><span>Syringe pump</span></div><a class="jump" href="./#n-hand">View on figure ↗</a></div>
+        </div>
+      </article>
+
+      <article id="p-leg" class="proj" data-cat="next">
+        <div class="art"><svg viewBox="0 0 300 120" aria-hidden="true"><g fill="none" stroke="#1b2a33" stroke-width="1.4"><line x1="150" y1="8" x2="146" y2="56"/><line x1="146" y1="64" x2="150" y2="104"/><path d="M134 108 H170"/></g><circle cx="146" cy="60" r="5" fill="#d7eef7" stroke="#0a84b8"/><g fill="none" stroke="#0a84b8" stroke-width="5" opacity=".45" stroke-linecap="round"><path d="M138 12 Q130 34 140 54"/><path d="M158 12 Q164 34 154 54"/></g><path d="M152 100 q8 -2 10 6" fill="none" stroke="#0a84b8" stroke-width="2"/></svg></div>
+        <div class="pbody">
+          <div class="meta"><span>Planned</span><span>Frumkin Lab, BU</span><span class="badge plan">Planned</span></div>
+          <h3>Humanoid Soft Robotic Leg</h3>
+          <dl class="prr">
+            <div><dt>Goal</dt><dd>A soft lower limb testbed for prosthetic and exoskeleton ideas.</dd></div>
+            <div><dt>Plan</dt><dd>Antagonistic McKibben artificial muscles, PneuNet ankle actuators, and rigid bones with Ecoflex joint shells sealed so fluid stays in one chamber.</dd></div>
+          </dl>
+          <div class="pfoot"><div class="tags"><span>McKibben muscles</span><span>PneuNet</span><span>Fluidic shaping</span></div><a class="jump" href="./#n-knee">View on figure ↗</a></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer class="foot"><span>© 2026 Chanwoo Kim</span><span>ckim1210@bu.edu</span></footer>
+</div>
+<script>
+(function () {
+  document.querySelectorAll('.filters .f').forEach(btn => btn.addEventListener('click', () => {
+    const f = btn.dataset.f;
+    document.querySelectorAll('.filters .f').forEach(x => { x.classList.toggle('on', x === btn); x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
+    document.querySelectorAll('.plist .proj').forEach(p => { p.hidden = !(f === 'all' || p.dataset.cat.split(' ').includes(f)); });
+  }));
+  const h = location.hash.slice(1), el = h && document.getElementById(h);
+  if (el) { el.classList.add('flash'); setTimeout(() => el.scrollIntoView({ block: 'start' }), 50); }
+})();
+</script>
+</body>
+</html>

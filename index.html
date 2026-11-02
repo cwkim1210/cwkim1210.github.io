@@ -102,7 +102,7 @@ nav.subs button:hover, nav.subs button[aria-pressed=true] { color: var(--glow); 
 .list .t { font-family: var(--display); font-weight: 600; font-size: 16px; color: #1b2a33; }
 .list .s { display: block; font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--dim); }
 .list .a { color: var(--dim); font-family: var(--mono); }
-.demo, .ecg { border: 1px solid var(--line); background: #000; margin: 0 0 14px; }
+.demo, .ecg { border: 1px solid var(--line); background: #f4f8fa; margin: 0 0 14px; }
 .demo { padding: 10px; }
 .demo svg { width: 100%; height: auto; display: block; }
 .demo .row { display: flex; align-items: center; gap: 10px; }
@@ -244,6 +244,42 @@ nav.subs a:hover { color: var(--glow); }
 @media (max-width: 760px) { @keyframes brief { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } } }
 @media (prefers-reduced-motion: reduce) { .ret-spin, .ret-ring { animation: none; } .panel:not([hidden]) { animation: none; } }
 .panel .ph .label::before { content: "Briefing · "; color: var(--dim); }
+
+/* ===== SC2 style briefing ===== */
+.panel { border: 1px solid #1b2a33; border-radius: 0; padding: 0 0 18px; clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); background: #fff; }
+.panel .ph { margin: 0; padding: 12px 18px 12px 20px; background: #1b2a33; color: #fff; position: sticky; top: 0; z-index: 2; }
+.panel .ph .label { color: #7fd4f5; }
+.panel .ph .label::before { content: "Mission briefing · "; color: #ffffff; }
+.panel .close { color: #cfe3ea; border-color: rgba(255,255,255,.35); }
+.panel .close:hover { color: #fff; border-color: #fff; }
+#pBody { padding: 16px 20px 0; position: relative; }
+#pBody::before { content: ""; display: block; height: 4px; margin: -16px -20px 16px; background: repeating-linear-gradient(-45deg, #0a84b8 0 8px, transparent 8px 14px); opacity: .55; }
+.panel h2 { font-family: var(--display); text-transform: uppercase; letter-spacing: .03em; font-size: 24px; min-height: 1.2em; }
+.brief-actions { display: flex; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.ba { flex: 1; font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; padding: 11px 10px; cursor: pointer; background: #fff; color: #1b2a33; border: 1px solid #1b2a33; clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.ba.go { background: #0a84b8; border-color: #0a84b8; color: #fff; }
+.ba:hover { filter: brightness(1.1); background: #1b2a33; color: #fff; }
+.ba.go:hover { background: #086c97; }
+/* mission markers */
+.newb rect { fill: #0a84b8; }
+.newb text { font-family: var(--mono); font-size: 8px !important; letter-spacing: .12em !important; fill: #fff !important; stroke: none !important; }
+.newb { animation: newpulse 1.6s ease-in-out infinite; }
+@keyframes newpulse { 50% { opacity: .45; } }
+#nodes .node.seen .core { fill: #0a84b8; }
+#nodes .node.seen .dot { fill: #fff; }
+#nodes .node.seen .ring { animation: none; opacity: 0; }
+#nodes .node:hover .core { stroke-width: 2.5; }
+/* HUD */
+.hud { position: absolute; left: max(20px, env(safe-area-inset-left, 0px)); bottom: 16px; z-index: 3; width: 290px; background: rgba(255,255,255,.92); border: 1px solid #1b2a33; padding: 10px 12px; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); display: grid; gap: 7px; }
+.hud-row { white-space: nowrap; display: flex; justify-content: space-between; gap: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.hud-v b { color: #0a84b8; font-weight: 600; }
+.hud-bar { height: 5px; background: #e6eef2; }
+.hud-bar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, #0a84b8 0 10px, #39a8d6 10px 12px); transition: width .6s ease; }
+.hud.done .hud-k::after { content: " · complete"; color: #0a84b8; }
+.sfx { justify-self: start; background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #1b2a33; }
+.sfx[aria-pressed=false] { color: var(--dim); }
+@media (prefers-reduced-motion: reduce) { .newb { animation: none; } }
+@media (max-aspect-ratio: 1/1) { .hud { position: static; margin: 10px auto 0; } }
 </style>
 </head>
 <body>
@@ -453,8 +489,13 @@ nav.subs a:hover { color: var(--glow); }
       </g>
     </svg>
     </div>
-    <div class="overlay-title"><span class="eyebrow">Chanwoo Kim · Mechanical Engineering</span><strong>Soft robots for the human body</strong><span class="hint2">Select a node to zoom in · select me for my profile</span></div>
-    <button class="back-map" id="backMap" type="button" hidden>← Back to map</button>
+    <div class="overlay-title"><span class="eyebrow">Chanwoo Kim · Mechanical Engineering</span><strong>Soft robots for the human body</strong><span class="hint2">Select a mission node to receive its briefing</span></div>
+    <button class="back-map" id="backMap" type="button" hidden>◂ Return to map</button>
+    <div class="hud" id="hud">
+      <div class="hud-row"><span class="hud-k">Mission archive</span><span class="hud-v"><b id="hudN">0</b> / 8 reviewed</span></div>
+      <div class="hud-bar"><i id="hudBar"></i></div>
+      <button class="sfx" id="sfxBtn" type="button" aria-pressed="true">♪ Sound on</button>
+    </div>
     <a class="scroll-cue" href="#about"><span>Scroll</span><span class="chev" aria-hidden="true">↓</span></a>
   </section>
 
@@ -731,7 +772,7 @@ nav.subs a:hover { color: var(--glow); }
 
   // content
   const ecg = '<svg class="ecg" viewBox="0 0 300 54" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 H60 L70 30 L76 22 L82 30 H96 L102 30 L108 6 L116 50 L122 30 H136 L146 24 L156 30 H200 L210 30 L216 22 L222 30 H236 L242 30 L248 6 L256 50 L262 30 H276 L286 24 L296 30 H300"/></svg>';
-  const finger = '<div class="demo"><svg viewBox="0 0 300 150" aria-label="Soft finger bending model"><rect x="8" y="58" width="30" height="44" fill="none" stroke="#1b2a33" stroke-opacity=".5"/><g transform="translate(38,80)" fill="#000" stroke="#1b2a33"><rect x="0" y="-10" width="70" height="20" rx="3"/><g id="fj1" transform="translate(78,0)"><ellipse class="fs" rx="9" ry="11"/><rect x="8" y="-9" width="58" height="18" rx="3"/><g id="fj2" transform="translate(74,0)"><ellipse class="fs" rx="8" ry="10"/><path d="M7 -8 H44 Q54 -8 54 0 Q54 8 44 8 H7 Z"/></g></g></g></svg><div class="row"><label for="fp">Pressure</label><input id="fp" type="range" min="0" max="100" value="35"><output id="fo"></output></div></div>';
+  const finger = '<div class="demo"><svg viewBox="0 0 300 150" aria-label="Soft finger bending model"><rect x="8" y="58" width="30" height="44" fill="none" stroke="#1b2a33" stroke-opacity=".5"/><g transform="translate(38,80)" fill="#fff" stroke="#1b2a33"><rect x="0" y="-10" width="70" height="20" rx="3"/><g id="fj1" transform="translate(78,0)"><ellipse class="fs" rx="9" ry="11"/><rect x="8" y="-9" width="58" height="18" rx="3"/><g id="fj2" transform="translate(74,0)"><ellipse class="fs" rx="8" ry="10"/><path d="M7 -8 H44 Q54 -8 54 0 Q54 8 44 8 H7 Z"/></g></g></g></svg><div class="row"><label for="fp">Pressure</label><input id="fp" type="range" min="0" max="100" value="35"><output id="fo"></output></div></div>';
 
   const C = {
     me: { label: 'Profile · Chanwoo Kim', html: `
@@ -872,14 +913,97 @@ nav.subs a:hover { color: var(--glow); }
     fly(HOME); ret.setAttribute('opacity', 0);
     hero.classList.remove('zoomed'); svg.classList.remove('focused'); $('backMap').hidden = true;
   }
-  $('backMap').addEventListener('click', close);
+
+  // ===== campaign feel: sound, typed briefing, mission markers, progress =====
+  let AC = null, unlocked = false, muted = false;
+  try { muted = localStorage.getItem('ck-muted') === '1'; } catch (e) {}
+  function tone(f1, f2, dur, type, vol, delay = 0) {
+    if (muted || !unlocked) return;
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+      o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + dur + .02);
+    } catch (e) {}
+  }
+  const sfx = {
+    select: () => { tone(520, 780, .08, 'square', .03); tone(780, 1170, .1, 'square', .025, .08); tone(1170, 1560, .14, 'triangle', .03, .17); },
+    hover: () => tone(2200, 1900, .025, 'sine', .015),
+    type: () => tone(3200, 3000, .012, 'square', .006),
+    back: () => { tone(900, 450, .16, 'triangle', .04); tone(450, 300, .12, 'triangle', .03, .12); }
+  };
+  document.addEventListener('pointerdown', () => { unlocked = true; }, { once: true, capture: true });
+  document.addEventListener('keydown', () => { unlocked = true; }, { once: true, capture: true });
+  const sfxBtn = $('sfxBtn');
+  const paintSfx = () => { sfxBtn.textContent = muted ? '♪ Sound off' : '♪ Sound on'; sfxBtn.setAttribute('aria-pressed', muted ? 'false' : 'true'); };
+  sfxBtn.addEventListener('click', () => { muted = !muted; try { localStorage.setItem('ck-muted', muted ? '1' : '0'); } catch (e) {} paintSfx(); if (!muted) sfx.hover(); });
+  paintSfx();
+
+  // seen markers
+  const ALL = ['brain','heart','lung','core','hand','eye','knee','me'];
+  let seen = new Set();
+  try { seen = new Set(JSON.parse(localStorage.getItem('ck-seen') || '[]')); } catch (e) {}
+  const badges = {};
+  document.querySelectorAll('#nodes .node').forEach(g => {
+    const t = g.querySelector('text:not(.sub)'); if (!t) return;
+    let bb; try { bb = t.getBBox(); } catch (e) { return; }
+    const right = t.getAttribute('text-anchor') !== 'end';
+    const bx = right ? bb.x + bb.width + 8 : bb.x - 8 - 30, by = bb.y + bb.height / 2 - 6;
+    const b = mk('g', { class: 'newb' }, g);
+    mk('rect', { x: bx, y: by, width: 30, height: 12, rx: 2 }, b);
+    const tx = mk('text', { x: bx + 15, y: by + 9, 'text-anchor': 'middle' }, b); tx.textContent = 'NEW';
+    badges[g.dataset.key] = b;
+    g.addEventListener('mouseenter', sfx.hover);
+  });
+  meBtn.addEventListener('mouseenter', sfx.hover);
+  function paintSeen() {
+    Object.entries(badges).forEach(([k, b]) => { b.style.display = seen.has(k) ? 'none' : ''; });
+    document.querySelectorAll('#nodes .node').forEach(g => g.classList.toggle('seen', seen.has(g.dataset.key)));
+    const n = ALL.filter(k => seen.has(k)).length;
+    $('hudN').textContent = n; $('hudBar').style.width = (n / ALL.length * 100) + '%';
+    $('hud').classList.toggle('done', n === ALL.length);
+    const t2 = document.querySelector('#meBtn .tag2'); if (t2) t2.textContent = seen.has('me') ? 'profile reviewed ✓' : 'NEW · tap for profile';
+  }
+  paintSeen();
+
+  // typed briefing
+  let typer = 0, staggers = [];
+  function brief(k) {
+    clearInterval(typer); staggers.forEach(clearTimeout); staggers = [];
+    const body = $('pBody');
+    body.insertAdjacentHTML('beforeend', `<div class="brief-actions"><button type="button" class="ba" data-act="back">◂ Return to map</button><button type="button" class="ba go" data-act="report">${k === 'me' ? 'Open full profile' : 'View in portfolio'} ▸</button></div>`);
+    body.querySelector('[data-act="back"]').addEventListener('click', close);
+    body.querySelector('[data-act="report"]').addEventListener('click', () => { const dest = k === 'me' ? '#about' : (['hand','heart','lung'].includes(k) ? '#work' : '#work'); close(); setTimeout(() => document.querySelector(dest).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }), 250); });
+    if (reduce) return;
+    const h = body.querySelector('h2'), kids = [...body.children].filter(el => el !== h);
+    kids.forEach(el => { el.style.opacity = 0; el.style.transform = 'translateY(6px)'; });
+    let delay = 380;
+    if (h) {
+      const full = h.textContent; h.textContent = ''; let i = 0;
+      staggers.push(setTimeout(() => {
+        typer = setInterval(() => { i++; h.textContent = full.slice(0, i) + (i < full.length ? '▌' : ''); if (i % 2) sfx.type(); if (i >= full.length) clearInterval(typer); }, 24);
+      }, delay));
+      delay += full.length * 24;
+    }
+    kids.forEach((el, i) => staggers.push(setTimeout(() => { el.style.transition = 'opacity .35s ease, transform .35s ease'; el.style.opacity = 1; el.style.transform = 'none'; }, delay + i * 90)));
+  }
+  const _show = show;
+  show = function (k) {
+    _show(k);
+    const after = () => { brief(k); sfx.select(); seen.add(k); try { localStorage.setItem('ck-seen', JSON.stringify([...seen])); } catch (e) {} paintSeen(); };
+    if (window.scrollY > 40) setTimeout(after, reduce ? 0 : 500); else after();
+  };
+  const _close = close;
+  close = function () { if (focusKey) sfx.back(); _close(); };
+  $('backMap').addEventListener('click', () => close());
   svg.addEventListener('click', e => { if (focusKey && !e.target.closest('.node, .me')) close(); });
   window.addEventListener('resize', () => { if (focusKey) setVB(focusVB(focusKey)); });
   meBtn.addEventListener('click', () => show('me'));
   meBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show('me'); } });
   document.querySelectorAll('nav.subs button').forEach(b => b.addEventListener('click', () => { const c = S[b.dataset.sec](); render(c, b.dataset.sec === 'about' ? 'me' : null, b.dataset.sec); }));
   document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => show(b.dataset.open)));
-  $('pClose').addEventListener('click', close);
+  $('pClose').addEventListener('click', () => close());
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
 })();
 </script>

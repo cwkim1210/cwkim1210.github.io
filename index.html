@@ -225,6 +225,25 @@ nav.subs a:hover { color: var(--glow); }
   .stage.full { position: relative; inset: auto; }
   .stage.full #scene { height: auto; aspect-ratio: 960 / 620; }
 }
+
+/* campaign map zoom */
+#scene .node, #scene .me { transition: opacity .5s ease; }
+#scene.focused .node:not(.active), #scene.focused .me:not(.active) { opacity: .22; }
+#scene.focused #cables { opacity: .35; transition: opacity .5s; }
+#scene .node:hover .core { transform-box: fill-box; transform-origin: center; }
+#reticle { transition: opacity .4s ease .5s; pointer-events: none; }
+.ret-spin { animation: retspin 6s linear infinite; }
+.ret-ring { animation: retspin 12s linear infinite reverse; transform-origin: 0 0; }
+@keyframes retspin { to { transform: rotate(360deg); } }
+.hero-full .overlay-title, .hero-full .scroll-cue { transition: opacity .4s ease; }
+.hero-full.zoomed .overlay-title, .hero-full.zoomed .scroll-cue { opacity: 0; pointer-events: none; }
+.back-map { position: absolute; top: 18px; left: max(20px, env(safe-area-inset-left, 0px)); z-index: 4; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; background: #fff; color: #1b2a33; border: 1px solid #1b2a33; padding: 9px 14px; cursor: pointer; border-radius: 2px; }
+.back-map:hover { background: #1b2a33; color: #fff; }
+.panel:not([hidden]) { animation: brief .5s cubic-bezier(.2,.8,.2,1) .25s both; }
+@keyframes brief { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@media (max-width: 760px) { @keyframes brief { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } } }
+@media (prefers-reduced-motion: reduce) { .ret-spin, .ret-ring { animation: none; } .panel:not([hidden]) { animation: none; } }
+.panel .ph .label::before { content: "Briefing · "; color: var(--dim); }
 </style>
 </head>
 <body>
@@ -434,7 +453,8 @@ nav.subs a:hover { color: var(--glow); }
       </g>
     </svg>
     </div>
-    <div class="overlay-title"><span class="eyebrow">Chanwoo Kim · Mechanical Engineering</span><strong>Soft robots for the human body</strong><span class="hint2">Tap an electrode on the body, or tap me in the lab coat</span></div>
+    <div class="overlay-title"><span class="eyebrow">Chanwoo Kim · Mechanical Engineering</span><strong>Soft robots for the human body</strong><span class="hint2">Select a node to zoom in · select me for my profile</span></div>
+    <button class="back-map" id="backMap" type="button" hidden>← Back to map</button>
     <a class="scroll-cue" href="#about"><span>Scroll</span><span class="chev" aria-hidden="true">↓</span></a>
   </section>
 
@@ -806,8 +826,55 @@ nav.subs a:hover { color: var(--glow); }
       fp.addEventListener('input', f); f();
     }
   }
-  function show(k) { render(C[k], k, k === 'me' ? 'about' : null); }
-  function close() { panel.hidden = true; document.querySelectorAll('.node').forEach(n => n.classList.remove('active')); meBtn.classList.remove('active'); document.querySelectorAll('nav.subs button').forEach(b => b.setAttribute('aria-pressed', 'false')); }
+  // ===== campaign camera: zoom to the selected node, briefing on the side =====
+  const svg = $('scene'), hero = document.querySelector('.hero-full');
+  const HOME = [-60, 0, 960, 620];
+  let cur = HOME.slice(), anim = 0, focusKey = null;
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const setVB = v => { cur = v; svg.setAttribute('viewBox', v.map(n => n.toFixed(2)).join(' ')); };
+  function fly(to, ms = 950) {
+    cancelAnimationFrame(anim);
+    if (reduce) { setVB(to); return; }
+    const from = cur.slice(), t0 = performance.now();
+    const step = now => { const t = Math.min(1, (now - t0) / ms), e = ease(t); setVB(from.map((f, i) => f + (to[i] - f) * e)); if (t < 1) anim = requestAnimationFrame(step); };
+    anim = requestAnimationFrame(step);
+  }
+  function target(k) { return k === 'me' ? { x: 790, y: 330, W: 760, r: 130 } : { x: N[k].xy[0], y: Y(N[k].xy[1]), W: 540, r: 26 }; }
+  function focusVB(k) {
+    const r = svg.getBoundingClientRect(), asp = (r.width / r.height) || 1.55, t = target(k);
+    const mobile = window.innerWidth <= 760, H = t.W / asp;
+    const fx = mobile ? .5 : Math.max(.22, (1 - Math.min(.45, 430 / r.width)) / 2), fy = mobile ? .4 : .5;
+    return [t.x - t.W * fx, t.y - H * fy, t.W, H];
+  }
+  // reticle
+  const ret = mk('g', { id: 'reticle', opacity: 0 }, svg);
+  const retSpin = mk('g', { class: 'ret-spin' }, ret);
+  [[1,1],[-1,1],[1,-1],[-1,-1]].forEach(([a, b]) => mk('path', { d: `M${a * 10} ${b * 1} L${a * 1} ${b * 1} L${a * 1} ${b * 10}`, fill: 'none', stroke: '#0a84b8', 'stroke-width': 1.6, transform: `translate(${a * -1} ${b * -1}) scale(1)` }, retSpin));
+  mk('circle', { r: 1, fill: 'none', stroke: '#0a84b8', 'stroke-opacity': .35, 'stroke-dasharray': '3 4', class: 'ret-ring' }, ret);
+  function placeRet(k) {
+    const t = target(k), s = t.r;
+    ret.setAttribute('transform', `translate(${t.x} ${t.y})`);
+    retSpin.querySelectorAll('path').forEach((p, i) => { const [a, b] = [[1,1],[-1,1],[1,-1],[-1,-1]][i]; p.setAttribute('d', `M${a * s} ${b * (s - 8)} L${a * s} ${b * s} L${a * (s - 8)} ${b * s}`); });
+    ret.querySelector('.ret-ring').setAttribute('r', s * .78);
+    ret.setAttribute('opacity', 1);
+  }
+  function show(k) {
+    const go = () => {
+      render(C[k], k, k === 'me' ? 'about' : null);
+      focusKey = k; fly(focusVB(k)); placeRet(k);
+      hero.classList.add('zoomed'); svg.classList.add('focused'); $('backMap').hidden = false;
+    };
+    if (window.scrollY > 40) { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(go, reduce ? 0 : 500); } else go();
+  }
+  function close() {
+    panel.hidden = true; focusKey = null;
+    document.querySelectorAll('.node').forEach(n => n.classList.remove('active')); meBtn.classList.remove('active');
+    fly(HOME); ret.setAttribute('opacity', 0);
+    hero.classList.remove('zoomed'); svg.classList.remove('focused'); $('backMap').hidden = true;
+  }
+  $('backMap').addEventListener('click', close);
+  svg.addEventListener('click', e => { if (focusKey && !e.target.closest('.node, .me')) close(); });
+  window.addEventListener('resize', () => { if (focusKey) setVB(focusVB(focusKey)); });
   meBtn.addEventListener('click', () => show('me'));
   meBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show('me'); } });
   document.querySelectorAll('nav.subs button').forEach(b => b.addEventListener('click', () => { const c = S[b.dataset.sec](); render(c, b.dataset.sec === 'about' ? 'me' : null, b.dataset.sec); }));
